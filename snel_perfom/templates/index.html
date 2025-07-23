@@ -1,0 +1,450 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
+  
+<!-- Mirrored from prium.github.io/phoenix/v1.22.0/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 20 Jun 2025 11:19:52 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <title>{% block title %}SNEL | Perfom{% endblock %}</title>
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/logo.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/logo.png' %}">
+    <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
+    <meta name="msapplication-TileImage" content="{% static 'img/favicons/mstile-150x150.png' %}">
+    <meta name="theme-color" content="#ffffff">
+    <script src="vendors/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'js/config.js' %}"></script>
+
+    <!-- ===============================================-->
+    <!--    Stylesheets-->
+    <!-- ===============================================-->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link href="{% static 'vendors/simplebar/simplebar.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'unicons.iconscout.com/release/v4.0.8/css/line.css' %}">
+    <link href="{% static 'css/theme-rtl.min.css' %}" type="text/css" rel="stylesheet" id="style-rtl">
+    <link href="{% static 'css/theme.min.css' %}" type="text/css" rel="stylesheet" id="style-default">
+    <link href="{% static 'css/user-rtl.min.css' %}" type="text/css" rel="stylesheet" id="user-style-rtl">
+    <link href="{% static 'css/user.min.css' %}" type="text/css" rel="stylesheet" id="user-style-default">
+    <script>
+      var phoenixIsRTL = window.config.config.phoenixIsRTL;
+      if (phoenixIsRTL) {
+        var linkDefault = document.getElementById('style-default');
+        var userLinkDefault = document.getElementById('user-style-default');
+        linkDefault.setAttribute('disabled', true);
+        userLinkDefault.setAttribute('disabled', true);
+        document.querySelector('html').setAttribute('dir', 'rtl');
+      } else {
+        var linkRTL = document.getElementById('style-rtl');
+        var userLinkRTL = document.getElementById('user-style-rtl');
+        linkRTL.setAttribute('disabled', true);
+        userLinkRTL.setAttribute('disabled', true);
+      }
+    </script>
+    <link href="{% static 'vendors/leaflet/leaflet.css' %}" rel="stylesheet">
+    <link href="{% static 'vendors/leaflet.markercluster/MarkerCluster.css' %}" rel="stylesheet">
+    <link href="{% static 'vendors/leaflet.markercluster/MarkerCluster.Default.css' %}" rel="stylesheet">
+    {% block additional_resources %} {% endblock %}
+  </head>
+{% block body %}
+  <body>
+    <main class="main" id="top">
+        {% block navigation1 %}
+      <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
+        <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+          <!-- scrollbar removed-->
+          <div class="navbar-vertical-content">
+            <ul class="navbar-nav flex-column" id="navbarVerticalNav">
+              <li class="nav-item">
+                <!-- parent pages-->
+                <div class="nav-item-wrapper"><a class="nav-link dropdown-indicator label-1" href="#nv-home" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="nv-home">
+                    <div class="d-flex align-items-center">
+                      <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="pie-chart"></span></span><span class="nav-link-text">Tableau de board</span>
+                    </div>
+                  </a>
+                  <div class="parent-wrapper label-1">
+                    <ul class="nav collapse parent show" data-bs-parent="#navbarVerticalCollapse" id="nv-home">
+                      <li class="collapsed-nav-item-title d-none">Dashboard</li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 1 %}active{% endif %}" href="{%  url 'dashboard:home' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Accueil</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'Skill_Training:ai_recommandations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Recommendations IA</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Attente approbation</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="navbar-vertical-footer"><button class="btn navbar-vertical-toggle border-0 fw-semibold w-100 white-space-nowrap d-flex align-items-center"><span class="uil uil-left-arrow-to-left fs-8"></span><span class="uil uil-arrow-from-right fs-8"></span><span class="navbar-vertical-footer-text ms-2">Collapsed View</span></button></div>
+      </nav>
+        {% endblock navigation1 %}
+    {% block navigation2 %}
+      <nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault" style="display:none;">
+        <div class="collapse navbar-collapse justify-content-between">
+          <div class="navbar-logo">
+            <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation"><span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
+            <a class="navbar-brand me-1 me-sm-2" href="{% url 'dashboard:home' %}">
+              <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center"><img src="{% static 'img/logo.png' %}" alt="phoenix" width="27" />
+                  <h5 class="logo-text ms-2 d-none d-sm-block">snel_Perfom</h5>
+                </div>
+              </div>
+            </a>
+          </div>
+          <ul class="navbar-nav navbar-nav-icons flex-row">
+            <li class="nav-item">
+              <div class="theme-control-toggle fa-icon-wait px-2"><input class="form-check-input ms-0 theme-control-toggle-input" type="checkbox" data-theme-control="phoenixTheme" value="dark" id="themeControlToggle" /><label class="mb-0 theme-control-toggle-label theme-control-toggle-light" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Switch theme" style="height:32px;width:32px;"><span class="icon" data-feather="moon"></span></label><label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Switch theme" style="height:32px;width:32px;"><span class="icon" data-feather="sun"></span></label></div>
+            </li>
+            <li class="nav-item d-lg-none"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#searchBoxModal"><span data-feather="search" style="height:19px;width:19px;margin-bottom: 2px;"></span></a></li>
+            <li class="nav-item dropdown"><a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                <div class="avatar avatar-l ">
+                  <img class="rounded-circle " src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url  }}{% else %} {% static 'img/avatar/default_profile.png' %} {% endif %}" alt="" />
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end navbar-dropdown-caret py-0 dropdown-profile shadow border" aria-labelledby="navbarDropdownUser">
+                <div class="card position-relative border-0">
+                  <div class="card-body p-0">
+                    <div class="text-center pt-4 pb-3">
+                      <div class="avatar avatar-xl ">
+                        <img class="rounded-circle " src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url  }}{% else %} {% static 'img/avatar/default_profile.png' %} {% endif %}" alt="" />
+                      </div>
+                     <h6 class="mt-2 text-body-emphasis"> <span class="small">{% if user.is_hr %} HR - {% elif user.is_manager %} MANGER - {% endif %}</span>{{ user.first_name }} {{ user.last_name }}</h6>
+                    </div>
+                  </div>
+                  <div class="overflow-auto scrollbar" style="height: 10rem;">
+                    <ul class="nav d-flex flex-column mb-2 pb-1">
+                      <li class="nav-item"><a class="nav-link px-3 d-block" href="{% url 'employee:employee_profile' pk=request.user.pk %}"> <span class="me-2 text-body align-bottom" data-feather="user"></span><span>Profile</span></a></li>
+                      <li class="nav-item"><a class="nav-link px-3 d-block" href="{% if request.user.is_manager or request.user.is_hr %} {% url 'dashboard:home' %} {% else %} {% url 'employee:home' %} {% endif %}"><span class="me-2 text-body align-bottom" data-feather="pie-chart"></span>Dashboard</a></li>
+                    </ul>
+                  </div>
+                  <div class="card-footer p-0 border-top border-translucent">
+
+                    <div class="px-3"> <a class="btn btn-phoenix-secondary d-flex flex-center w-100" href="{% url 'dashboard:logout' %}"> <span class="me-2" data-feather="log-out"> </span>Se deconnecter</a></div>
+                   <hr />
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    {% endblock navigation2 %}
+      <script>
+        var navbarTopShape = window.config.config.phoenixNavbarTopShape;
+        var navbarPosition = window.config.config.phoenixNavbarPosition;
+        var body = document.querySelector('body');
+        var navbarDefault = document.querySelector('#navbarDefault');
+        var navbarTop = document.querySelector('#navbarTop');
+        var topNavSlim = document.querySelector('#topNavSlim');
+        var navbarTopSlim = document.querySelector('#navbarTopSlim');
+        var navbarCombo = document.querySelector('#navbarCombo');
+        var navbarComboSlim = document.querySelector('#navbarComboSlim');
+        var dualNav = document.querySelector('#dualNav');
+
+        var documentElement = document.documentElement;
+        var navbarVertical = document.querySelector('.navbar-vertical');
+
+        if (navbarPosition === 'dual-nav') {
+          topNavSlim?.remove();
+          navbarTop?.remove();
+          navbarTopSlim?.remove();
+          navbarCombo?.remove();
+          navbarComboSlim?.remove();
+          navbarDefault?.remove();
+          navbarVertical?.remove();
+          dualNav.removeAttribute('style');
+          document.documentElement.setAttribute('data-navigation-type', 'dual');
+
+        } else if (navbarTopShape === 'slim' && navbarPosition === 'vertical') {
+          navbarDefault?.remove();
+          navbarTop?.remove();
+          navbarTopSlim?.remove();
+          navbarCombo?.remove();
+          navbarComboSlim?.remove();
+          topNavSlim.style.display = 'block';
+          navbarVertical.style.display = 'inline-block';
+          document.documentElement.setAttribute('data-navbar-horizontal-shape', 'slim');
+
+        } else if (navbarTopShape === 'slim' && navbarPosition === 'horizontal') {
+          navbarDefault?.remove();
+          navbarVertical?.remove();
+          navbarTop?.remove();
+          topNavSlim?.remove();
+          navbarCombo?.remove();
+          navbarComboSlim?.remove();
+          dualNav?.remove();
+          navbarTopSlim.removeAttribute('style');
+          document.documentElement.setAttribute('data-navbar-horizontal-shape', 'slim');
+        } else if (navbarTopShape === 'slim' && navbarPosition === 'combo') {
+          navbarDefault?.remove();
+          navbarTop?.remove();
+          topNavSlim?.remove();
+          navbarCombo?.remove();
+          navbarTopSlim?.remove();
+          dualNav?.remove();
+          navbarComboSlim.removeAttribute('style');
+          navbarVertical.removeAttribute('style');
+          document.documentElement.setAttribute('data-navbar-horizontal-shape', 'slim');
+        } else if (navbarTopShape === 'default' && navbarPosition === 'horizontal') {
+          navbarDefault?.remove();
+          topNavSlim?.remove();
+          navbarVertical?.remove();
+          navbarTopSlim?.remove();
+          navbarCombo?.remove();
+          navbarComboSlim?.remove();
+          dualNav?.remove();
+          navbarTop.removeAttribute('style');
+          document.documentElement.setAttribute('data-navigation-type', 'horizontal');
+        } else if (navbarTopShape === 'default' && navbarPosition === 'combo') {
+          topNavSlim?.remove();
+          navbarTop?.remove();
+          navbarTopSlim?.remove();
+          navbarDefault?.remove();
+          navbarComboSlim?.remove();
+          dualNav?.remove();
+          navbarCombo.removeAttribute('style');
+          navbarVertical.removeAttribute('style');
+          document.documentElement.setAttribute('data-navigation-type', 'combo');
+        } else {
+          topNavSlim?.remove();
+          navbarTop?.remove();
+          navbarTopSlim?.remove();
+          navbarCombo?.remove();
+          navbarComboSlim?.remove();
+          dualNav?.remove();
+          navbarDefault.removeAttribute('style');
+          navbarVertical.removeAttribute('style');
+        }
+
+        var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+        var navbarTop = document.querySelector('.navbar-top');
+        if (navbarTopStyle === 'darker') {
+          navbarTop.setAttribute('data-navbar-appearance', 'darker');
+        }
+
+        var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+        var navbarVertical = document.querySelector('.navbar-vertical');
+        if (navbarVerticalStyle === 'darker') {
+          navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+        }
+      </script>
+       {% block content %}
+      <div class="content">
+        <div class="row gy-3 mb-4 justify-content-between">
+          <div class="col-xxl-6">
+            <h2 class="mb-2 text-body-emphasis">Tableau de board{% if departement %} - Manger {{ departement }}{% else %} - HR {% endif %}</h2>
+            <h5 class="text-body-tertiary fw-semibold mb-4">Superviser la performance des agents</h5>
+            <div class="row g-3 mb-3">
+                
+              <div class="col-sm-6 col-md-4 col-xl-3 col-xxl-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <div class="d-flex d-sm-block justify-content-between">
+                      <div class="border-bottom-sm border-translucent mb-sm-4">
+                        <div class="d-flex align-items-center">
+                          <div class="d-flex align-items-center icon-wrapper-sm shadow-primary-100" style="transform: rotate(-7.45deg);"><span class="fa-solid fa-folder text-primary fs-7 z-1 ms-2"></span></div>
+                          <p class="text-body-tertiary fs-9 mb-0 ms-2 mt-3">Recommendation en attente</p>
+                        </div>
+                        <p class="text-primary mt-2 fs-6 fw-bold mb-0 mb-sm-4">{{ pending_recommendation }} <span class="fs-8 text-body lh-lg">Recommendations</span></p>
+                      </div>
+                      <div class="d-flex flex-column justify-content-center flex-between-end d-sm-block text-end text-sm-start"><span class="badge badge-phoenix badge-phoenix-success fs-10 mb-2">{{ rate_a_r|floatformat:"2" }}%</span>
+                        <p class="mb-0 fs-9 text-body-tertiary">Taux de recommendation accepter</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3 col-xxl-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <div class="d-flex d-sm-block justify-content-between">
+                      <div class="border-bottom-sm border-translucent mb-sm-4">
+                        <div class="d-flex align-items-center">
+                          <div class="d-flex align-items-center icon-wrapper-sm shadow-info-100" style="transform: rotate(-7.45deg);"><span class="fa-solid fa-book text-info fs-7 z-1 ms-2"></span></div>
+                          <p class="text-body-tertiary fs-9 mb-0 ms-2 mt-3">Nombre d'employee en role a un cours</p>
+                        </div>
+                        <p class="text-info mt-2 fs-6 fw-bold mb-0 mb-sm-4">{{ enrol_cours }} <span class="fs-8 text-body lh-lg">Cours</span></p>
+                      </div>
+                      <div class="d-flex flex-column justify-content-center flex-between-end d-sm-block text-end text-sm-start"><span class="badge badge-phoenix badge-phoenix-warning fs-10 mb-2">{{ taux_canceled_course }}%</span>
+                        <p class="mb-0 fs-9 text-body-tertiary">Pourcentage d'abandon de cours</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 col-xl-6 col-xxl-4 gy-5 gy-md-3">
+                <div class="border-bottom border-translucent">
+                  <h5 class="pb-4 border-bottom border-translucent">Indices de performance {% if departement %}<span class="small">{{ departement }}</span>{% endif %}</h5>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-transparent list-group-crm fw-bold text-body fs-9 py-2">
+                      <div class="d-flex justify-content-between"><span class="fw-normal fs-9 mx-1"> <span class="fw-bold">1. </span>Nombre employee </span><span>{{ kpis.total_workforce }}</span></div>
+                    </li>
+                    <li class="list-group-item bg-transparent list-group-crm fw-bold text-body fs-9 py-2">
+                      <div class="d-flex justify-content-between"><span class="fw-normal mx-1"><span class="fw-bold">2. </span>Taux de retention (5ans)</span><span>{{ kpis.retention_rate }}%</span></div>
+                    </li>
+                    <li class="list-group-item bg-transparent list-group-crm fw-bold text-body fs-9 py-2">
+                      <div class="d-flex justify-content-between"><span class="fw-normal fs-9 mx-1"><span class="fw-bold">3.</span>Taux de turnover</span><span>{{ kpis.turnover_rate }}%</span></div>
+                    </li>
+                    {% if not departement %}
+                    <li class="list-group-item bg-transparent list-group-crm fw-bold text-body fs-9 py-2">
+                      <div class="d-flex justify-content-between"><span class="fw-normal fs-9 mx-1"><span class="fw-bold">4.</span>Depense Moyenne par employee </span><span>{{ kpis.average_cost_per_employee|floatformat:"2" }} $</span></div>
+                    </li>
+                    <li class="list-group-item bg-transparent list-group-crm fw-bold text-body fs-9 py-2">
+                      <div class="d-flex justify-content-between"><span class="fw-normal fs-9 mx-1"> <span class="fw-bold">5.</span>Masse Salariale</span><span>{{ kpis.total_payroll|floatformat:"2" }} $</span></div>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% if not departement %}
+          <div class="col-12 col-xxl-6 mb-3 mb-sm-0">
+            <div class="row">
+              <div class="col-sm-12 col-md-12 col-xxl-12 mb-md-3 mb-lg-0">
+                <h3>Employee par departement</h3>
+                <p class="text-body-tertiary">Nombre d'employee par departement</p>
+                <div class="row g-0">
+                 {% for d in distributions.by_department %}
+                  {% if d.department__name != None %}
+                     <div class="col-6 col-xl-4">
+                        <div class="d-flex flex-column flex-center align-items-sm-start flex-md-row justify-content-md-between flex-xxl-column p-3 ps-sm-3 ps-md-4 p-md-3 h-100 border-1 border-bottom border-end border-translucent">
+                          <div class="d-flex align-items-center mb-1"><span class="fa-solid fa-square fs-11 me-2 text-primary" data-fa-transform="up-2"></span><span class="mb-0 fs-9 text-body">{{ d.department__name }}</span></div>
+                          <h3 class="fw-semibold ms-xl-3 ms-xxl-0 pe-md-2 pe-xxl-0 mb-0 mb-sm-3">{{ d.count }}</h3>
+                        </div>
+                     </div>
+                  {% endif %}
+                 {% endfor %}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        {% else %}
+            <div class="col-12 col-xxl-6 mb-3 mb-sm-0">
+              <div class="row">
+                <div class="col-sm-12 col-md-12 col-xxl-12 mb-md-3 mb-lg-0">
+                  <h3>Liste d'employés dans ce département</h3>
+                  <p class="text-body-tertiary">Voici la liste de {{ departement }}</p>
+                  <div class="row g-0">
+                      <div class="table-responsive mx-n1 px-1 scrollbar">
+                          {% if employees_in_department %}
+                          <table class="table fs-9 mb-0 border-top border-translucent">
+                              <thead>
+                                  <tr>
+                                      <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:200px;">Employé</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Matricule</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Poste</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:100px;">Statut</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Type Contrat</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Date d'embauche</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Email</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:100px;">Téléphone</th>
+                                  </tr>
+                              </thead>
+                              <tbody class="list">
+                                  {% for employee in employees_in_department %}
+                                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                      <td class="align-middle customer white-space-nowrap">
+                                          <a class="d-flex align-items-center text-body" href="{% url 'employee:employee_profile' pk=employee.pk %}">
+                                              {% if employee.profile_picture %}
+                                                  <div class="avatar avatar-l"><img class="rounded-circle" src="{{ employee.profile_picture.url }}" alt="{{ employee.full_name }}" /></div>
+                                              {% else %}
+                                                  <div class="avatar avatar-l"> <div class="avatar-name rounded-circle"><span>{{ employee.full_name|slice:":1" }}</span></div></div>
+                                              {% endif %}
+                                              <h6 class="mb-0 ms-3 text-body">{{ employee.full_name }}</h6>
+                                          </a>
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.employee_id }}</td>
+                                      <td class="align-middle white-space-nowrap">
+                                          {% if employee.position %}
+                                              {{ employee.position.title }}
+                                          {% else %}
+                                              N/A
+                                          {% endif %}
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">
+                                          <span class="badge badge-phoenix fs-10
+                                              {% if employee.employee_status == 'ACT' %}badge-phoenix-success
+                                              {% elif employee.employee_status == 'CON' %}badge-phoenix-warning
+                                              {% elif employee.employee_status == 'SUS' %}badge-phoenix-danger
+                                              {% else %}badge-phoenix-secondary{% endif %}">
+                                              {{ employee.get_employee_status_display }}
+                                          </span>
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.get_contract_type_display }}</td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.hire_date|date:"d M Y" }}</td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.email }}</td>
+                                      <td class="align-middle white-space-nowrap">
+                                          {% if employee.phone_number %}{{ employee.phone_number }}{% else %}N/A{% endif %}
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                          </table>
+                          {% else %}
+                              <p class="text-muted mt-3">Aucun employé trouvé dans ce département.</p>
+                          {% endif %}
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        {% endif %}
+        </div>
+
+        <footer class="footer position-absolute">
+          <div class="row g-0 justify-content-between align-items-center h-100">
+            <div class="col-12 col-sm-auto text-center">
+              <p class="mb-0 mt-2 mt-sm-0 text-body">SNEL PERFOM<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2025 &copy;<a class="mx-1" href="{% url 'dashboard:home' %}">snel_perfom</a></p>
+            </div>
+            <div class="col-12 col-sm-auto text-center">
+              <p class="mb-0 text-body-tertiary text-opacity-85">v01.beta.hiven</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+       {% endblock %}
+    </main>
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <script src="{% static 'vendors/popper/popper.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/anchorjs/anchor.min.js' %}"></script>
+    <script src="{% static 'vendors/is/is.min.js' %}"></script>
+    <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'vendors/lodash/lodash.min.js' %}"></script>
+    <script src="{% static 'vendors/list.js/list.min.js' %}"></script>
+    <script src="{% static 'vendors/feather-icons/feather.min.js' %}"></script>
+    <script src="{% static 'vendors/dayjs/dayjs.min.js' %}"></script>
+    <script src="{% static 'vendors/echarts/echarts.min.js' %}"></script>
+    <script src="{% static 'js/phoenix.js' %}"></script>
+    <script src="{% static 'js/dashboards/crm-dashboard.js' %}"></script>
+    {% block additional_script %} {% endblock %}
+  </body>
+{% endblock %}
+</html>

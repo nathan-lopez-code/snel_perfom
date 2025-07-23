@@ -1,0 +1,174 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block navigation1 %}
+    {% if not request.user.is_simple_employee %}
+        <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
+        <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+          <!-- scrollbar removed-->
+          <div class="navbar-vertical-content">
+            <ul class="navbar-nav flex-column" id="navbarVerticalNav">
+              <li class="nav-item">
+                <!-- parent pages-->
+                <div class="nav-item-wrapper"><a class="nav-link dropdown-indicator label-1" href="#nv-home" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="nv-home">
+                    <div class="d-flex align-items-center">
+                      <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="pie-chart"></span></span><span class="nav-link-text">Tableau de board</span>
+                    </div>
+                  </a>
+                  <div class="parent-wrapper label-1">
+                    <ul class="nav collapse parent show" data-bs-parent="#navbarVerticalCollapse" id="nv-home">
+                      <li class="collapsed-nav-item-title d-none">Dashboard</li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 1 %}active{% endif %}" href="{%  url 'dashboard:home' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Accueil</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'Skill_Training:ai_recommandations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Recommendations IA</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="navbar-vertical-footer"><button class="btn navbar-vertical-toggle border-0 fw-semibold w-100 white-space-nowrap d-flex align-items-center"><span class="uil uil-left-arrow-to-left fs-8"></span><span class="uil uil-arrow-from-right fs-8"></span><span class="navbar-vertical-footer-text ms-2">Collapsed View</span></button></div>
+      </nav>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="content"> {# Main content wrapper from index.html #}
+    <div class="row gy-3 mb-2 justify-content-between">
+        <div class="col-12">
+            {% if request.user.is_manager is False and request.user.is_hr is False %}
+            <a href="{% url 'employee:home' %}"> <i class="fa fa-arrow-left"></i> Revenir a l'accueil </a>
+            {% endif %}
+            <h2 class="mb-2 text-body-emphasis">Détails de la Formation : {{ course.title }}</h2>
+            <h5 class="text-body-tertiary fw-semibold mb-4">Informations complètes sur ce cours et ses participants.</h5>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7 col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Informations sur le Cours</h5>
+                    {% if request.user.is_manager or request.user.is_hr %}
+                    <a href="{% url 'course:edit_course' course.pk %}" class="btn btn-outline-light btn-sm text-white-emphasis">
+                        <span class="fas fa-edit me-1"></span> Modifier
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h4 class="mb-2 text-body-emphasis">{{ course.title }}</h4>
+                    <p class="text-body-tertiary fs-9">{{ course.provider|default_if_none:"Fournisseur Inconnu" }}</p>
+                    <hr class="my-3 border-dashed">
+                    <p class="text-body-emphasis">{{ course.description|default_if_none:"Aucune description disponible." }}</p>
+                    
+                    <ul class="list-group list-group-flush text-start mt-4">
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Type de Formation :</strong> 
+                            <span class="badge badge-phoenix fs-10 badge-phoenix-primary">{{ course.get_training_type_display }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Durée :</strong> 
+                            <span class="text-body-emphasis fw-semibold">{{ course.duration_hours|default_if_none:"N/A" }} heures</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Coût :</strong> 
+                            <span class="text-body-emphasis fw-semibold">{{ course.cost|floatformat:2|default_if_none:"N/A" }} $</span>
+                        </li>
+                        {% if course.url_link %}
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Lien de la Formation :</strong> 
+                            <a href="{{ course.url_link }}" target="_blank" class="text-body-emphasis fw-semibold">Accéder au cours <span class="fas fa-external-link-alt ms-1"></span></a>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Créé le :</strong> 
+                            <span class="text-body-emphasis fw-semibold">{{ course.created_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Dernière Mise à Jour :</strong> 
+                            <span class="text-body-emphasis fw-semibold">{{ course.updated_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 text-white">Compétences et Participants</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3 text-body-emphasis">Compétences Couvertes :</h6>
+                    {% if course.skills_covered.all %}
+                        {% for skill in course.skills_covered.all %}
+                            <span class="badge badge-phoenix badge-phoenix-secondary me-2 mb-2 fs-10" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ skill.description|default_if_none:'Aucune description.' }}">
+                                {{ skill.name }}
+                            </span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-body-tertiary">Aucune compétence associée à cette formation.</p>
+                    {% endif %}
+
+                    <hr class="my-3 border-dashed">
+                    {% if request.user.is_manager or request.user.is_hr %}
+                    <h6 class="mb-3 text-body-emphasis">Nombre de Participants :</h6>
+                    <p class="fs-4 fw-bold text-primary">{{ total_participants }} <span class="fs-9 text-body-tertiary">employé(s) inscrit(s)</span></p>
+
+                    {% if participants_list %}
+                        <h6 class="mb-3 text-body-emphasis">Participants Inscrits :</h6>
+                        <div class="list-group list-group-flush scrollbar" style="max-height: 250px; overflow-y: auto;">
+                            {% for participant in participants_list %}
+                            <a href="{% url 'employee:employee_profile' participant.pk %}" class="list-group-item list-group-item-action d-flex align-items-center bg-transparent py-2">
+                                {% if participant.profile_picture %}
+                                    <img src="{{ participant.profile_picture.url }}" alt="Photo de {{ participant.full_name }}" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                {% endif %}
+                                <span class="text-body-emphasis fw-semibold fs-9">{{ participant.full_name }}</span>
+                                <span class="badge badge-phoenix badge-phoenix-{{ participant.get_employee_status_display|lower|slugify|default:'secondary' }} ms-auto fs-10">{{ participant.get_employee_status_display }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-body-tertiary">Aucun employé n'est encore inscrit à cette formation.</p>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Footer section from index.html - keeping it as is #}
+    <footer class="footer position-absolute">
+        <div class="row g-0 justify-content-between align-items-center h-100">
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 mt-2 mt-sm-0 text-body">SNEL PERFOM<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2025 &copy;<a class="mx-1" href="{% url 'dashboard:home' %}">snel_perfom</a></p>
+            </div>
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 text-body-tertiary text-opacity-85">v01.beta.hiven</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %}

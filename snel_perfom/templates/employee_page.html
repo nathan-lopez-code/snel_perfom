@@ -1,0 +1,165 @@
+{% extends 'index.html' %}
+
+{% block navigation1 %}
+{% endblock navigation1 %}
+
+{% load static %}
+
+{% block content %}
+<div class="content"> {# This div wraps the main content and is present in index.html #}
+    <div class="row gy-3 mb-4 justify-content-between">
+        <div class="col-12">
+            <h2 class="mb-2 text-body-emphasis">Profil de l'Employé</h2>
+            <h5 class="text-body-tertiary fw-semibold mb-4">Informations détaillées et suivi des formations</h5>
+        </div>
+    </div>
+    <div class="card">
+        <div class="row g-4">
+        <div class="col-lg-4 col-md-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Informations Personnelles</h5>
+
+                </div>
+                <div class="card-body text-center">
+                    {% if employee.profile_picture %}
+                        <img src="{{ employee.profile_picture.url }}" alt="Photo de profil de {{ employee.full_name }}" class="img-fluid rounded-circle mb-3 border border-3 border-primary" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/avatar/default_profile.png' %}" alt="Photo de profil par défaut" class="img-fluid rounded-circle mb-3 border border-3 border-secondary" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% endif %}
+
+                    <h4 class="mb-1 text-body-emphasis">{{ employee.first_name }} {{ employee.last_name }}</h4>
+                    <p class="text-body-tertiary fs-9">{{ employee.position.name }} - {{ employee.department.name }}</p>
+                    <hr class="my-3 border-dashed">
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Matricule :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.employee_id }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Date de Naissance :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.date_of_birth|date:"d/m/Y" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Genre :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.get_gender_display }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Date de Recrutement :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.hire_date|date:"d/m/Y" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Type de Contrat :</strong> <span class="badge badge-phoenix fs-10 badge-phoenix-primary">{{ employee.get_contract_type_display }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Statut :</strong> <span class="badge badge-phoenix fs-10 badge-phoenix-{{ employee.get_employee_status_display|lower|slugify|default:'secondary' }}">{{ employee.get_employee_status_display }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">E-mail Pro :</strong> <a href="mailto:{{ employee.email }}" class="text-body-emphasis fw-semibold">{{ employee.email }}</a>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Téléphone :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.phone_number|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Adresse :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.address|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Salaire :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.salary|floatformat:2 }} $</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Contact Urgence :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.emergency_contact_name|default_if_none:"N/A" }} ({{ employee.emergency_contact_phone|default_if_none:"N/A" }})</span>
+                        </li>
+                        {% if employee.manager %}
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Manager Direct :</strong> {{ employee.manager.full_name }}
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 text-white">Suivi des Formations</h5>
+                </div>
+                <div class="card-body">
+                    {% if enrollments %}
+                    <div class="table-responsive scrollbar"> {# Added scrollbar class for responsiveness #}
+                        <table class="table table-hover table-striped fs-9">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Formation</th>
+                                    <th scope="col">Date Début</th>
+                                    <th scope="col">Date Fin</th>
+                                    <th scope="col">Statut</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for enrollment in enrollments %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'course:detail_course' enrollment.course.pk %}" class="text-body-emphasis fw-semibold">
+                                            {{ enrollment.course.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ enrollment.enrollment_date|date:"d/m/Y" }}</td>
+                                    <td>{% if enrollment.completion_date  %}{{ enrollment.completion_date|date:"d/m/Y" }}{% else %}NA{% endif %}</td>
+                                    <td>
+                                        {% if enrollment.status == 'Terminé' %}
+                                            <span class="badge badge-phoenix badge-phoenix-primary fs-10">Terminée</span>
+                                        {% elif enrollment.status == 'En Cours' %}
+                                            <span class="badge badge-phoenix badge-phoenix-secondary fs-10">En Cours</span>
+                                        {% elif enrollment.status == 'Inscrit' %}
+                                            <span class="badge badge-phoenix badge-phoenix-info fs-10">Inscrit</span>
+                                        {% else %}
+                                            <span class="badge badge-phoenix badge-phoenix-warning fs-10">{{ enrollment.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if enrollment.status != 'Terminé' and enrollment.status == 'En Cours' %}
+                                        <form action="{% url 'course:mark_attente_validation' enrollment.pk %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-phoenix-success btn-sm small p-1" title="Marquer comme terminée">
+                                               Marquer Terminer
+                                            </button>
+                                        </form>
+                                        {% elif enrollment.status == 'Terminé' %}
+
+                                        <span class="text-success fw-semibold"><span class="fas fa-check me-1"></span> Terminé</span>
+                                        {% elif enrollment.status == 'Inscrit' %}
+                                        <form action="{% url 'course:mark_course_inscrit' enrollment.pk %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-phoenix-info btn-sm small p-1" title="Marquer comme terminée">
+                                               Marquer En cours
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center" role="alert">
+                        <span class="fas fa-info-circle me-2"></span> Aucune formation enregistrée pour cet employé pour le moment.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <footer class="footer position-absolute">
+        <div class="row g-0 justify-content-between align-items-center h-100">
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 mt-2 mt-sm-0 text-body">SNEL PERFOM<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2025 &copy;<a class="mx-1" href="{% url 'dashboard:home' %}">snel_perfom</a></p>
+            </div>
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 text-body-tertiary text-opacity-85">v01.beta.hiven</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}

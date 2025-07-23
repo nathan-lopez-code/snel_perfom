@@ -1,0 +1,150 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load app_filters %}
+
+{% block title %} SNEL_PERFORM | Approuver Formation {% endblock %}
+
+{% block additional_resources %}
+    <style>
+        .form-container {
+            background-color: #fefefe;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        .form-section h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            background-color: #28a745; /* Vert pour l'approbation */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            background-color: #218838;
+        }
+        .info-card {
+            background-color: #e9f5ff;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-card p {
+            margin-bottom: 5px;
+        }
+        .info-card strong {
+            color: #0056b3;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="pb-5">
+        <h2 class="mb-2">Approuver Formation & Évaluer Compétences</h2>
+        <p class="text-body-tertiary fw-semibold">Évaluez les compétences acquises par {{ employee_training.employee.full_name }} après la formation "{{ employee_training.course.title }}".</p>
+    </div>
+
+    <div class="form-container">
+        <div class="info-card">
+            <h3>Détails de la Formation</h3>
+            <p><strong>Employé:</strong> <a href="{% url 'employee:employee_profile' pk=employee_training.employee.pk %}">{{ employee_training.employee.full_name }}</a></p>
+            <p><strong>Formation:</strong> <a href="{% url 'course:detail_course' employee_training.course.pk %}">{{ employee_training.course.title }}</a></p>
+            <p><strong>Date de déclaration de fin:</strong> {{ employee_training.completion_date|date:"d M Y" }}</p>
+            <p><strong>Statut actuel:</strong> <span class="badge badge-phoenix fs-10 status-WAITING_MANAGER_APPROVAL">{{ employee_training.get_status_display }}</span></p>
+            {% if employee_training.score %}
+                <p><strong>Score déclaré par l'employé:</strong> {{ employee_training.score }}</p>
+            {% endif %}
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-section">
+                <h3>Compétences couvertes par la formation</h3>
+                {% if skills_covered %}
+                    {% for skill in skills_covered %}
+                        <div class="form-group mb-4">
+                            <label for="skill_{{ skill.pk }}_level">Évaluer La competence : <strong>{{ skill.name }}</strong></label>
+                            <select name="skill_{{ skill.pk }}_level" id="skill_{{ skill.pk }}_level" class="form-control" required>
+                                {% with current_employee_skill=employee_current_skills|get_item:skill %}
+                                    {% comment %} Déterminer le niveau de base pour l'affichage des options {% endcomment %}
+                                    {% if current_employee_skill %}
+                                        {% comment %} Si l'employé a déjà la compétence, commencer à partir de son niveau actuel {% endcomment %}
+                                        {% with base_level=current_employee_skill.proficiency_level %}
+                                            {% for value, label in proficiency_choices %}
+                                                {% if value >= base_level %} {# N'afficher que les options >= au niveau actuel #}
+                                                    <option value="{{ value }}"
+                                                        {% if current_employee_skill and current_employee_skill.proficiency_level == value %}
+                                                            selected {# Pré-sélectionner le niveau actuel si c'est celui qui est affiché #}
+                                                        {% endif %}
+                                                    >
+                                                        {{ label }}
+                                                    </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% comment %} Si l'employé n'a PAS la compétence, commencer à partir du niveau 1 (Débutant) {% endcomment %}
+                                        {% for value, label in proficiency_choices %}
+                                            <option value="{{ value }}"
+                                                {% if value == 1 %} selected {% endif %} {# Sélectionner 'Débutant' par défaut #}
+                                            >
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                            </select>
+                            {% with current_employee_skill=employee_current_skills|get_item:skill %}
+                                {% if current_employee_skill %}
+                                    <small class="text-muted mt-1">Niveau actuel de l'employé : <strong>{{ current_employee_skill.get_proficiency_level_display }}</strong></small>
+                                {% else %}
+                                    <small class="text-muted mt-1">Nouvelle compétence pour cet employé. Le niveau de départ est "Débutant".</small>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Cette formation n'a pas de compétences associées définies.</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="submit-button">Approuver & Valider les Compétences</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

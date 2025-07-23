@@ -1,0 +1,432 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+
+{% block title %} SNEL_PERFORM | Recommendation {% endblock %}
+
+{% block additional_resources %}
+    <script src="//kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <style>
+        /* Styles généraux pour les conteneurs et filtres */
+        .recommendations-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            margin-top: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-section label {
+            font-weight: bold;
+        }
+        .filter-section select,
+        .filter-section input[type="text"],
+        .filter-section button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Styles de tableau */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Styles des boutons d'action */
+        .action-buttons button {
+            margin-right: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-accept { background-color: #28a745; color: white; } /* Vert */
+        .btn-reject { background-color: #dc3545; color: white; } /* Rouge */
+        .btn-enrolled { background-color: #ffc107; color: #333; } /* Jaune */
+        .btn-completed { background-color: #17a2b8; color: white; } /* Bleu Cyan */
+        .btn-detail { background-color: #007bff; color: white; } /* Bleu */
+
+        /* Styles des badges de statut */
+        .status-badge {
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .status-PENDING { background-color: #6c757d; } /* Gris */
+        .status-ACCEPTED { background-color: #28a745; } /* Vert */
+        .status-REJECTED { background-color: #dc3545; } /* Rouge */
+        .status-ENROLLED { background-color: #ffc107; } /* Jaune */
+        .status-COMPLETED { background-color: #17a2b8; } /* Bleu Cyan */
+
+        /* Styles de la boîte de dialogue (Modale) */
+        .dialog {
+            display: none; /* C'est la LIGNE CLÉ : cache la modale par défaut */
+            position: fixed;
+            z-index: 1050; /* S'assurer qu'elle est au-dessus des autres éléments */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Fond sombre semi-transparent */
+            /* Nous n'utilisons plus 'display: flex;' ici pour le centrage par défaut */
+            /* 'justify-content' et 'align-items' seront appliqués dynamiquement par JS lors de l'affichage */
+        }
+        .dialog-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            animation: fadeIn 0.3s ease-out; /* Animation d'apparition */
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #555;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .dialog-content h2 {
+            margin-top: 0;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .dialog-content label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .dialog-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .dialog-content button[type="submit"] {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .dialog-content button[type="submit"]:hover {
+            background-color: #c82333;
+        }
+
+        /* Animation pour l'apparition de la modale */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+        <div class="pb-5">
+          <div class="row g-4">
+            <div class="col-12 col-xxl-6">
+              <div class="mb-8">
+                <h2 class="mb-2">{{ page_title }}</h2>
+                <h5 class="text-body-tertiary fw-semibold">Découvrez une liste de formations recommandées par l'IA </h5>
+              </div>
+              <div class="row align-items-center g-4">
+                <div class="col-12 col-md-auto">
+                  <div class="d-flex align-items-center"><span class="fa-stack" style="min-height: 46px;min-width: 46px;"><span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-light" data-fa-transform="down-4 rotate--10 left-4"></span><span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success" data-fa-transform="up-4 right-3 grow-2"></span><span class="fa-stack-1x fa-solid fa-star text-success " data-fa-transform="shrink-2 up-8 right-6"></span></span>
+                    <div class="ms-3">
+                      <h4 class="mb-0">{{ enrolled_recommendation }} </h4>
+                        <p class="text-body-secondary fs-9 mb-0">Inscrit <br><i>recommenadtion approuvée</i></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <div class="d-flex align-items-center"><span class="fa-stack" style="min-height: 46px;min-width: 46px;"><span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-warning-light" data-fa-transform="down-4 rotate--10 left-4"></span><span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-warning" data-fa-transform="up-4 right-3 grow-2"></span><span class="fa-stack-1x fa-solid fa-pause text-warning " data-fa-transform="shrink-2 up-8 right-6"></span></span>
+                    <div class="ms-3">
+                      <h4 class="mb-0">{{ pending_recommendation }}</h4>
+                      <p class="text-body-secondary fs-9 mb-0">En attente</i</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <div class="d-flex align-items-center"><span class="fa-stack" style="min-height: 46px;min-width: 46px;"><span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-danger-light" data-fa-transform="down-4 rotate--10 left-4"></span><span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger" data-fa-transform="up-4 right-3 grow-2"></span><span class="fa-stack-1x fa-solid fa-xmark text-danger " data-fa-transform="shrink-2 up-8 right-6"></span></span>
+                    <div class="ms-3">
+                      <h4 class="mb-0">{{ rejected_recommendation }}</h4>
+                      <p class="text-body-secondary fs-9 mb-0">Rejetée</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <div class="d-flex align-items-center"><span class="fa-stack" style="min-height: 46px;min-width: 46px;"><span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-dark" data-fa-transform="down-4 rotate--10 left-4"></span><span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success" data-fa-transform="up-4 right-3 grow-2"></span><span class="fa-stack-1x fa-solid fa-check text-success-dark " data-fa-transform="shrink-2 up-8 right-6"></span></span>
+                    <div class="ms-3">
+                      <h4 class="mb-0">{{ completed_recommendation }}</h4>
+                      <p class="text-body-secondary fs-9 mb-0">Completer</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr class="bg-body-secondary mb-6 mt-4" />
+            </div>
+
+          </div>
+        </div>
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis pt-7 border-y">
+          <div data-list='{"valueNames":["product","customer","rating","review","time"],"page":6}'>
+            <div class="row align-items-end pb-5 g-3">
+              <div class="col-auto">
+                <h3>{{ page_title }}</h3>
+              </div>
+              <div class="col-12 col-md-auto">
+                <div class="row g-2 gy-3">
+                  <div class="col-auto flex-1">
+                    <div class="search-box">
+                      <form class="position-relative"><input class="form-control search-input search form-control-sm" type="search" placeholder="Recherche" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                  <form method="GET" action="{% url 'Skill_Training:ai_recommandations_list' %}">
+                    <select class="dropdown-menu dropdown-menu-end btn btn-sm btn-phoenix-secondary bg-body-emphasis bg-body-hover me-2" name="status" id="status-filter" onchange="this.form.submit()">
+                        <option class="form-control dropdown-item" value="">Tous les Statuts</option>
+                        {% for status_code, status_name in all_statuses %}
+                            <option class="form-control dropdown-item" value="{{ status_code }}" {% if status_code == current_status_filter %}selected{% endif %}>
+                                {{ status_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if request.GET.q or current_status_filter %}
+                        <a href="{% url 'Skill_Training:ai_recommandations_list' %}" class="btn-clear-filters">Effacer les filtres</a>
+                    {% endif %}
+                  </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive mx-n1 px-1 scrollbar">
+            {% if recommendations %}
+              <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                  <tr>
+                    <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;" data-sort="product">Employé</th>
+                    <th class="sort align-middle" scope="col" data-sort="customer" style="min-width:100px;">Formation Recommandée</th>
+                    <th class="sort align-middle" scope="col" data-sort="rating" style="min-width:50px;">Confiance IA</th>
+                    <th class="sort align-middle" scope="col" style="max-width:350px;" data-sort="review">Raisonnement de l'IA</th>
+                    <th class="sort text-start ps-5 align-middle" scope="col" data-sort="status">Statut</th>
+                    <th class="sort text-end align-middle" scope="col" data-sort="time">Date de recom</th>
+                    <th class="sort text-end  pe-0 align-middle" scope="col" >Action</th>
+                  </tr>
+                </thead>
+                <tbody class="list" id="table-latest-review-body">
+                {% for rec in recommendations %}
+                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                    <td class="align-middle customer white-space-nowrap"><a class="d-flex align-items-center text-body" href="{% url 'employee:employee_profile' pk=rec.employee.pk %}">
+
+                        {% if rec.employee.profile_picture %}
+                            <div class="avatar avatar-l"><img class="rounded-circle" src="{{ rec.employee.profile_picture.url }}" alt="" /></div>
+                        {% else %}
+                            <div class="avatar avatar-l"> <div class="avatar-name rounded-circle"><span>{{ rec.employee.full_name|slice:":1" }}</span></div></div>
+                        {% endif %}
+                        <h6 class="mb-0 ms-3 text-body">{{ rec.employee.full_name }}</h6>
+                      </a></td>
+                    <td class="align-middle product white-space-nowrap"><a class="fw-semibold" href="{% url 'course:detail_course' rec.training_course.id %}">{{ rec.training_course.title }}</a></td>
+
+                    <td class="align-middle">{{ rec.confidence_score|floatformat:2 }} %</td>
+                    <td class="align-middle review" style="min-width:350px;">
+                      <p class="fs-9 fw-semibold text-body-highlight mb-0">{{ rec.reasoning }}</p>
+                    </td>
+                    <td class="align-middle text-start ps-5 status"><span class="badge badge-phoenix fs-10 {% if rec.status == 'En attente' %} badge-phoenix-dark {%  elif rec.status == 'Acceptée' %} badge-phoenix-primary {% elif rec.status == 'Inscrite' %} badge-phoenix-light {% elif rec.status == 'Refusée' %} badge-phoenix-danger {% endif %} "><span class="badge-label">{{ rec.status }}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span></td>
+                    <td class="align-middle text-end time white-space-nowrap">
+                      <div class="">
+                        <h6 class="text-body-highlight mb-0">{{ rec.recommendation_date|date:"d M Y" }}</h6>
+                      </div>
+                    </td>
+                    <td class="align-middle white-space-nowrap text-center pe-0">
+                         {% if rec.status == 'En attente' %}
+                        <div class="btn-reveal-trigger position-static"><button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+                        {% endif %}
+                        {% if rec.status == 'En attente' %}
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                                <button class="action-buttons form-control btn-accept dropdown-item" onclick="handleRecommendationAction('{{ rec.pk }}', 'accept')">Accepter</button>
+                                <button class="action-buttons form-control btn-reject dropdown-item" onclick="showRejectDialog('{{ rec.pk }}')">Refuser</button>
+                            </div>
+                        {% elif rec.status == 'Acceptée' %}
+                            <button class="action-buttons form-control btn-enrolled dropdown-item" onclick="handleRecommendationAction('{{ rec.pk }}', 'mark_enrolled')">Marquer Inscrit</button>
+                        {% elif rec.status == 'Inscrite' %}
+                            <button class="action-buttons form-control btn-completed dropdown-item" onclick="handleRecommendationAction('{{ rec.pk }}', 'mark_completed')">Marquer Terminé</button>
+                        {% endif %}
+                        {% if rec.status == 'Refusée' and rec.rejection_reason %}
+                            <button class="btn btn-phoenix-info" onclick="alert('Motif de refus : {{ rec.rejection_reason }}');">Motif Refus</button>
+                        {% endif %}
+                        </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+                <p>Aucune recommandation de formation IA trouvée selon les critères actuels.</p>
+            {% endif %}
+            </div>
+            <div class="row align-items-center py-1">
+              <div class="pagination d-none"></div>
+              <div class="col d-flex fs-9">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less</a>
+              </div>
+              <div class="col-auto d-flex">
+                <button class="btn btn-link px-1 me-1" type="button" title="Previous" data-list-pagination="prev"><span class="fas fa-chevron-left me-2"></span>Previous</button><button class="btn btn-link px-1 ms-1" type="button" title="Next" data-list-pagination="next">Next<span class="fas fa-chevron-right ms-2"></span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <div id="rejectDialog" class="dialog">
+        <div class="dialog-content">
+            <span class="close-button" onclick="closeRejectDialog()">&times;</span>
+            <h2>Motif de Refus de la Recommandation</h2>
+            <form id="rejectForm" method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" id="rejectRecommendationPk" name="pk" value="">
+                <label for="rejection_reason">Veuillez indiquer la raison du refus :</label>
+                <textarea id="rejection_reason" name="rejection_reason" rows="5" required></textarea>
+                <button type="submit">Confirmer le Refus</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_script %}
+    <script>
+        // Fonction pour gérer les actions via Fetch API (AJAX)
+        function handleRecommendationAction(pk, action) {
+            // Confirmation avant l'action, sauf si l'action est 'reject' (la modale sert de confirmation)
+            if (action !== 'reject' && !confirm(`Êtes-vous sûr de vouloir ${action.replace('_', ' ')} cette recommandation ?`)) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); // Nécessaire pour les requêtes POST
+
+            // Si l'action est "reject", le motif sera géré par le formulaire de la modale
+            if (action === 'reject') {
+                const rejectionReason = document.getElementById('rejection_reason').value;
+                if (!rejectionReason) {
+                    alert("Veuillez fournir une raison pour le refus.");
+                    return;
+                }
+                formData.append('rejection_reason', rejectionReason);
+            }
+
+            // Utilisez l'URL 'update_recommendation_status' avec le PK approprié
+            const url = `{% url 'Skill_Training:update_recommendation_status' pk=0 %}`.replace('0', pk);
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Indique que c'est une requête AJAX
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Recharger la page pour voir le statut mis à jour
+                } else {
+                    alert('Erreur : ' + data.message);
+                }
+                closeRejectDialog(); // Fermer la modale après la soumission, succès ou échec
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'envoi de l\'action :', error);
+                alert('Une erreur est survenue lors de l\'action.');
+                closeRejectDialog(); // Fermer la modale même en cas d'erreur
+            });
+        }
+
+        // Fonctions pour gérer la modale de refus
+        function showRejectDialog(pk) {
+            const dialog = document.getElementById('rejectDialog');
+            const recommendationPkInput = document.getElementById('rejectRecommendationPk');
+            const rejectionReasonInput = document.getElementById('rejection_reason');
+
+            recommendationPkInput.value = pk;
+            rejectionReasonInput.value = ''; // Toujours vider le champ à l'ouverture
+
+            // Afficher la modale et la centrer via flexbox
+            dialog.style.display = 'flex';
+            dialog.style.justifyContent = 'center';
+            dialog.style.alignItems = 'center';
+        }
+
+        function closeRejectDialog() {
+            const dialog = document.getElementById('rejectDialog');
+            const rejectionReasonInput = document.getElementById('rejection_reason');
+            rejectionReasonInput.value = ''; // Réinitialiser le champ
+            dialog.style.display = 'none'; // Cacher la modale
+        }
+
+        // Intercepter la soumission du formulaire de refus pour la gérer via AJAX
+        document.getElementById('rejectForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêche la soumission normale du formulaire
+            const pk = document.getElementById('rejectRecommendationPk').value;
+            handleRecommendationAction(pk, 'reject');
+        });
+
+        // Fermer la modale si l'utilisateur clique en dehors du contenu
+        window.onclick = function(event) {
+            const dialog = document.getElementById('rejectDialog');
+            if (event.target == dialog) {
+                closeRejectDialog();
+            }
+        }
+    </script>
+{% endblock %}

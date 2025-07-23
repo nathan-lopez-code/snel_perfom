@@ -1,0 +1,291 @@
+{% extends 'index.html' %}
+
+
+{% load static %}
+
+
+{% block title %} {{ page_title }} {% endblock %}
+
+{% block additional_resources %}
+ <style>
+        /* Styles spécifiques pour ce tableau (ajoutez-les à votre main.css) */
+        .trainings-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            margin-top: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-section label {
+            font-weight: bold;
+        }
+        .filter-section select,
+        .filter-section input[type="text"],
+        .filter-section button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .action-buttons button {
+            margin-right: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap; /* Empêche les boutons de s'enrouler */
+        }
+        .btn-in-progress { background-color: #ffc107; color: #333; } /* Jaune */
+        .btn-completed { background-color: #28a745; color: white; } /* Vert */
+        .btn-cancelled { background-color: #dc3545; color: white; } /* Rouge */
+        .status-badge {
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .status-PLANNED { background-color: #007bff; } /* Bleu */
+        .status-IN_PROGRESS { background-color: #ffc107; } /* Jaune */
+        .status-COMPLETED { background-color: #28a745; } /* Vert */
+        .status-CANCELLED { background-color: #dc3545; } /* Rouge */
+        .ai-badge {
+            background-color: #6f42c1; /* Violet */
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="content">
+        <div class="card-header">
+            <h3>Liste de formation suivi par les employes - {% if department %}{{ department }}{% endif %}</h3>
+        </div>
+        <div class="trainings-container">
+            <div class="filter-section">
+                <form class="col-12 d-flex align-items-center"  method="GET" action="{% url 'Skill_Training:formations_list' %}">
+                    <div class="col-auto" style="margin-right: 50px">
+                    <select class="form-control" name="status" id="status-filter" onchange="this.form.submit()">
+                        <option value="">Tous les Statuts</option>
+                        {% for status_code, status_name in all_statuses %}
+                            <option value="{{ status_code }}" {% if status_code == current_status_filter %}selected{% endif %}>
+                                {{ status_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if request.GET.q or current_status_filter %}
+                        <a href="{% url 'Skill_Training:formations_list' %}" class="btn-clear-filters">Effacer les filtres</a>
+                    {% endif %}
+                    </div>
+                    <div class="col-auto d-flex justify-content-between">
+                    <input class="form-control col-3" type="text" name="q" id="search-query" placeholder="Rechercher par Employé, Formation..." value="{{ request.GET.q }}">
+                    <button class="button button-form btn-phoenix-success" type="submit">Rechercher</button>
+                    </div>
+                </form>
+            </div>
+            <div class="table-responsive mx-n1 px-1 scrollbar">
+            {% if employee_trainings %}
+              <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                  <tr>
+                    <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;" data-sort="product">Employé</th>
+                    <th class="sort align-middle" scope="col" data-sort="customer" style="min-width:100px;">Formation </th>
+                    <th class="sort align-middle" scope="col" data-sort="rating" style="min-width:50px;">Recommene par IA ?</th>
+                    <th class="sort text-start ps-5 align-middle" scope="col" data-sort="status">Statut</th>
+                    <th class="sort text-end align-middle" scope="col" data-sort="time">Date d'inscription</th>
+                    <th class="sort text-end  pe-0 align-middle" scope="col" >Action</th>
+                  </tr>
+                </thead>
+                <tbody class="list" id="table-latest-review-body">
+                {% for rec in employee_trainings %}
+                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                    <td class="align-middle customer white-space-nowrap"><a class="d-flex align-items-center text-body" href="{% url 'employee:employee_profile' pk=rec.employee.pk %}">
+
+                        {% if rec.employee.profile_picture %}
+                            <div class="avatar avatar-l"><img class="rounded-circle" src="{{ rec.employee.profile_picture.url }}" alt="" /></div>
+                        {% else %}
+                            <div class="avatar avatar-l"> <div class="avatar-name rounded-circle"><span>{{ rec.employee.full_name|slice:":1" }}</span></div></div>
+                        {% endif %}
+                        <h6 class="mb-0 ms-3 text-body">{{ rec.employee.full_name }}</h6>
+                      </a></td>
+                    <td class="align-middle product white-space-nowrap"><a class="fw-semibold" href="{% url 'course:detail_course' course_id=rec.course.id %}">{{ rec.course.title }}</a></td>
+
+                    <td class="align-middle">
+                        {% if rec.recommended_by_ai %}
+                            <span class="ai-badge">Oui</span>
+                            {% else %}
+                            Non
+                        {% endif %}
+                    </td>
+                    <td class="align-middle text-start ps-5 status"><span class="badge  fs-10 {% if rec.status == 'Inscrit' %} badge-phoenix-dark {%  elif rec.status == 'Terminé' %} badge-phoenix-primary {% elif rec.status == 'En Cours' %} badge-phoenix-light {% elif rec.status == 'Annulé' %} badge-phoenix-danger {% else %} badge-phoenix-info {% endif %} "><span class="badge-label">
+                        {% if rec.status == 'Attente validation manager' %}<a href="{% url 'Skill_Training:approve_training_and_evaluate_skills_view' rec.pk %}">{{ rec.status }}</a>{% else %}{{ rec.status }}{% endif %}
+                    </span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span></td>
+                    <td class="align-middle text-end time white-space-nowrap">
+                      <div class="">
+                        <h6 class="text-body-highlight mb-0">{{ rec.enrollment_date|date:"d M Y" }}</h6>
+                      </div>
+                    </td>
+                    <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
+                        {% if rec.status == 'Inscrit' %}
+                             <div class="btn-reveal-trigger position-static"><button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                                <button class="action-buttons form-control btn-accept dropdown-item" onclick="updateTrainingStatus('{{ rec.pk }}', 'En Cours')">En cours</button>
+                                <button class="action-buttons dropdown-item" onclick="updateTrainingStatus('{{ rec.pk }}', 'Terminé')">Terminé</button>
+                                <hr class="dropdown-divider" />
+                                <button class="action-buttons dropdown-item " style="color: red" onclick="updateTrainingStatus('{{ rec.pk }}', 'Annulé')">Annulé</button>
+                            </div>
+                        {% elif rec.status == 'En Cours' %}
+                        <div class="btn-reveal-trigger position-static"><button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
+
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                                <button class="action-buttons dropdown-item" onclick="updateTrainingStatus('{{ rec.pk }}', 'Terminé')">Terminé</button>
+                                <hr class="dropdown-divider" />
+                                <button style="color: red" class="action-buttons dropdown-item" onclick="updateTrainingStatus('{{ rec.pk }}', 'Annuler')">Annuler</button>
+                            </div>
+                        {% elif rec.status == 'Terminé' %}
+
+                            <p>Formation Terminée</p>
+                        {% elif rec.status == 'Annulé' %}
+
+                            <p>Formation Annulée</p>
+                        {% else %}
+                            <p>N/A</p>
+                        {% endif %}
+                        </div>
+
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+                <p>Aucune formation d'employé trouvée selon les critères actuels.</p>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block additional_script %}
+
+    <script>
+        // Fonction pour gérer les actions via Fetch API (AJAX)
+        function handleFormationAcition(pk, action) {
+            // Confirmation avant l'action
+            if (!confirm(`Êtes-vous sûr de vouloir ${action.replace('_', ' ')} cette formation ?`)) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); // Nécessaire pour les requêtes POST
+
+            fetch(`{% url 'Skill_Training:update_employee_training_status' pk=0 %}`.replace('0', pk), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Indique que c'est une requête AJAX
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Recharger la page pour voir le statut mis à jour
+                } else {
+                    alert('Erreur : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'envoi de l\'action :', error);
+                alert('Une erreur est survenue lors de l\'action.');
+            });
+        }
+
+        // Fonctions pour gérer la modale de refus
+
+
+        // Fermer la modale si l'utilisateur clique en dehors du contenu
+        window.onclick = function(event) {
+            const dialog = document.getElementById('rejectDialog');
+            if (event.target == dialog) {
+                closeRejectDialog();
+            }
+        }
+    </script>
+
+
+    <script>
+
+        function updateTrainingStatus(pk, action) {
+            let confirmationMessage = '';
+            if (action === 'En Cours') {
+                confirmationMessage = "Êtes-vous sûr de vouloir marquer cette formation 'En cours' ?";
+            } else if (action === 'Terminé') {
+                confirmationMessage = "Êtes-vous sûr de vouloir marquer cette formation 'Terminée' ?";
+            } else if (action === 'Annulé') {
+                confirmationMessage = "Êtes-vous sûr de vouloir 'Annuler' cette formation ? Cette action est irréversible.";
+            }
+
+            if (!confirm(confirmationMessage)) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            fetch(`{% url 'Skill_Training:update_employee_training_status' pk=0 %}`.replace('0', pk), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Recharger la page pour voir le statut mis à jour
+                } else {
+                    alert('Erreur : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour du statut :', error);
+                alert('Une erreur est survenue lors de la mise à jour du statut.');
+            });
+        }
+    </script>
+{% endblock %}

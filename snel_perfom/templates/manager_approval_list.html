@@ -1,0 +1,110 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %} SNEL_PERFORM | {{ page_title }} {% endblock %}
+
+{% block additional_resources %}
+    <style>
+        /* Styles spécifiques pour ce tableau, si différents */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            background-color: #007bff; /* Bleu pour l'action */
+        }
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+        .no-data-message {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        .status-badge {
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .status-WAITING_MANAGER_APPROVAL { background-color: #fd7e14; } /* Orange */
+        /* Ajoutez d'autres statuts si nécessaire */
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="pb-5">
+        <h2 class="mb-2">{{ page_title }}</h2>
+        <p class="text-body-tertiary fw-semibold">Gérez les formations terminées par les employés en attente de votre approbation.</p>
+    </div>
+
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis pt-7 border-y">
+        <div class="table-responsive mx-n1 px-1 scrollbar">
+            {% if pending_trainings %}
+            <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                    <tr>
+                        <th scope="col">Employé</th>
+                        <th scope="col">Formation</th>
+                        <th scope="col">Date de Déclaration</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for training in pending_trainings %}
+                    <tr>
+                        <td>
+                            <a class="d-flex align-items-center text-body" href="{% url 'employee:employee_profile' pk=training.employee.pk %}">
+                                {% if training.employee.profile_picture %}
+                                    <div class="avatar avatar-l"><img class="rounded-circle" src="{{ training.employee.profile_picture.url }}" alt="" /></div>
+                                {% else %}
+                                    <div class="avatar avatar-l"> <div class="avatar-name rounded-circle"><span>{{ training.employee.full_name|slice:":1" }}</span></div></div>
+                                {% endif %}
+                                <h6 class="mb-0 ms-3 text-body">{{ training.employee.full_name }}</h6>
+                            </a>
+                        </td>
+                        <td><a href="{% url 'course:detail_course' training.course.pk %}">{{ training.course.title }}</a></td>
+                        <td>{{ training.completion_date|date:"d M Y" }}</td>
+                        <td><span class="badge badge-phoenix fs-10 status-WAITING_MANAGER_APPROVAL">{{ training.get_status_display }}</span></td>
+                        <td>
+                            <a href="{% url 'Skill_Training:approve_training_and_evaluate_skills_view' employee_training_pk=training.pk %}" class="btn btn-phoenix-info">
+                                Évaluer / Approuver
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="no-data-message">Aucune formation en attente d'approbation manager.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

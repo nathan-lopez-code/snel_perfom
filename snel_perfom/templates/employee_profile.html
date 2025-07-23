@@ -1,0 +1,266 @@
+{% extends 'index.html' %} {# Assurez-vous que le chemin vers votre base template est correct #}
+{% load static %}
+{% load app_filters %}
+
+{% block navigation1 %}
+    {% if not request.user.is_simple_employee %}
+             <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
+        <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+          <!-- scrollbar removed-->
+          <div class="navbar-vertical-content">
+            <ul class="navbar-nav flex-column" id="navbarVerticalNav">
+              <li class="nav-item">
+                <!-- parent pages-->
+                <div class="nav-item-wrapper"><a class="nav-link dropdown-indicator label-1" href="#nv-home" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="nv-home">
+                    <div class="d-flex align-items-center">
+                      <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="pie-chart"></span></span><span class="nav-link-text">Tableau de board</span>
+                    </div>
+                  </a>
+                  <div class="parent-wrapper label-1">
+                    <ul class="nav collapse parent show" data-bs-parent="#navbarVerticalCollapse" id="nv-home">
+                      <li class="collapsed-nav-item-title d-none">Dashboard</li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 1 %}active{% endif %}" href="{%  url 'dashboard:home' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Accueil</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'Skill_Training:ai_recommandations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Recommendations IA</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Attente approbation</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="navbar-vertical-footer"><button class="btn navbar-vertical-toggle border-0 fw-semibold w-100 white-space-nowrap d-flex align-items-center"><span class="uil uil-left-arrow-to-left fs-8"></span><span class="uil uil-arrow-from-right fs-8"></span><span class="navbar-vertical-footer-text ms-2">Collapsed View</span></button></div>
+      </nav>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="content"> {# Main content wrapper from index.html #}
+    <div class="row gy-3 mb-4 justify-content-between">
+        <div class="col-12">
+            <h2 class="mb-2 text-body-emphasis">Profil de l'Employé : {{ employee.full_name }}</h2>
+            <h5 class="text-body-tertiary fw-semibold mb-4">Vue détaillée de l'employé, de ses compétences et de son parcours de formation.</h5>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Informations Générales</h5>
+                </div>
+                <div class="card-body pb-0">
+                    <div class="text-center mb-4">
+                        {% if employee.profile_picture %}
+                            <img src="{{ employee.profile_picture.url }}" alt="Photo de {{ employee.full_name }}" class="rounded-circle avatar avatar-4xl" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'img/avatar/default_profile.png' %}" alt="Photo de profil par défaut" class="rounded-circle avatar avatar-4xl" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% endif %}
+                        <h4 class="mt-3 mb-1 text-body-emphasis">{{ employee.full_name }}</h4>
+                        <p class="text-body-tertiary">{{ employee.position.title|default_if_none:"N/A" }} {% if employee.department %}({{ employee.department.name }}){% endif %}</p>
+                        <span class="badge badge-phoenix fs-10 badge-phoenix-{{ employee.get_employee_status_display|lower|slugify|default:'secondary' }}">{{ employee.get_employee_status_display }}</span>
+                    </div>
+
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Matricule SNEL :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.employee_id }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Email :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.email }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Téléphone :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.phone_number|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Adresse :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.address|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Date de Naissance :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.date_of_birth|date:"d/m/Y"|default_if_none:"N/A" }} {% if employee.current_age %}({{ employee.current_age }} ans){% endif %}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Genre :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.get_gender_display|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Date d'Embauche :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.hire_date|date:"d/m/Y"|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Type de Contrat :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.get_contract_type_display|default_if_none:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Manager Direct :</strong>
+                            {% if employee.manager %}
+                                <a href="{% url 'employee:employee_profile' employee.manager.pk %}" class="text-body-emphasis fw-semibold">{{ employee.manager.full_name }}</a>
+                            {% else %}
+                                <span class="text-body-emphasis fw-semibold">N/A</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item bg-transparent py-2">
+                            <strong class="text-body-secondary">Contact d'Urgence :</strong> <span class="text-body-emphasis fw-semibold">{{ employee.emergency_contact_name|default_if_none:"N/A" }} - {{ employee.emergency_contact_phone|default_if_none:"N/A" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 text-white">Compétences de l'Employé</h5>
+                </div>
+                <div class="card-body">
+                    {% if employee_skills %}
+                        <div class="table-responsive scrollbar" style="max-height: 350px;">
+                            <table class="table table-sm table-striped fs-10 mb-0">
+                                <thead class="bg-body-tertiary">
+                                    <tr>
+                                        <th scope="col">Compétence</th>
+                                        <th scope="col">Niveau de Maîtrise</th>
+                                        <th scope="col">Dernière Éval.</th>
+                                        <th scope="col">Évalué par</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for es in employee_skills %}
+                                    <tr>
+                                        <td class="text-body-emphasis fw-semibold" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ es.skill.description|default_if_none:'Aucune description.' }}">
+                                            {{ es.skill.name }}
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-phoenix badge-phoenix-{{ es.proficiency_level|get_proficiency_badge_color }} fs-10">
+                                                {{ es.get_proficiency_level_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ es.last_assessed_date|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if es.assessed_by %}
+                                                <a href="{% url 'employee:user_profile' es.assessed_by.pk %}" class="text-body-emphasis">{{ es.assessed_by.full_name }}</a>
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-body-tertiary">Aucune compétence enregistrée pour cet employé.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 text-white">Formations Suivies</h5>
+                </div>
+                <div class="card-body">
+                    {% if employee_trainings %}
+                        <div class="table-responsive scrollbar" style="max-height: 350px;">
+                            <table class="table table-sm table-striped fs-10 mb-0">
+                                <thead class="bg-body-tertiary">
+                                    <tr>
+                                        <th scope="col">Formation</th>
+                                        <th scope="col">Statut</th>
+                                        <th scope="col">Inscrit le</th>
+                                        <th scope="col">Complété le</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for et in employee_trainings %}
+                                    <tr>
+                                        <td><a href="{% url 'course:detail_course' et.course.pk %}" class="text-body-emphasis fw-semibold">{{ et.course.title }}</a></td>
+                                        <td><span class="badge badge-phoenix badge-phoenix-primary fs-10">{{ et.get_status_display }}</span></td>
+                                        <td>{{ et.enrollment_date|date:"d/m/Y"|default_if_none:"N/A" }}</td>
+                                        <td>{% if et.completion_date %}{{ et.completion_date|date:"d/m/Y" }}{% else %} N/A {% endif %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-body-tertiary">Cet employé n'a pas encore suivi de formation.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request.user.is_manager or request.user.is_hr %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 text-dark">Recommandations de Formations par l'IA</h5>
+                </div>
+                <div class="card-body">
+                    {% if recommended_trainings %}
+                        <div class="table-responsive scrollbar" style="max-height: 250px;">
+                            <table class="table table-sm table-striped fs-10 mb-0">
+                                <thead class="bg-body-tertiary">
+                                    <tr>
+                                        <th scope="col">Formation Recommandée</th>
+                                        <th scope="col">Statut</th>
+                                        <th scope="col">Date Recom.</th>
+                                        <th scope="col">Confiance IA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rt in recommended_trainings %}
+                                    <tr>
+                                        <td><a href="{% url 'course:detail_course' rt.training_course.pk %}" class="text-body-emphasis fw-semibold">{{ rt.training_course.title }}</a></td>
+                                        <td><span class="badge badge-phoenix badge-phoenix-{{ rt.status|lower|slugify }} fs-10">{{ rt.get_status_display }}</span></td>
+                                        <td>{{ rt.recommendation_date|date:"d/m/Y" }}</td>
+                                        <td>
+                                            <span class="badge badge-phoenix badge-phoenix-primary fs-10">{{ rt.confidence_score|floatformat:2|default_if_none:"N/A" }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-body-tertiary">Aucune recommandation de formation AI pour cet employé.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Footer section from index.html #}
+    <footer class="footer position-absolute">
+        <div class="row g-0 justify-content-between align-items-center h-100">
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 mt-2 mt-sm-0 text-body">SNEL PERFOM<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2025 &copy;<a class="mx-1" href="{% url 'dashboard:home' %}">snel_perfom</a></p>
+            </div>
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 text-body-tertiary text-opacity-85">v01.beta.hiven</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+{# Custom filter for proficiency badge color #}
+{% comment %}
+    This filter is defined in the view context or in a custom template tag.
+    It's used to dynamically set the badge color based on proficiency level.
+    Example: 1=danger, 2=warning, 3=info, 4=primary, 5=success
+{% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %}
