@@ -1,7 +1,6 @@
 from datetime import date
 from django.db.models import Count, Avg, Sum, F, ExpressionWrapper, fields
-from employee.models import Employee, Department  # Assurez-vous d'importer vos modèles
-from skill_training.crack import all_employees
+from employee.models import Employee  # Assurez-vous d'importer vos modèles
 
 
 # --- Fonctions de Calcul des KPIs RH ---

@@ -89,10 +89,8 @@
                 <p><strong>Score déclaré par l'employé:</strong> {{ employee_training.score }}</p>
             {% endif %}
         </div>
-
         <form method="POST">
             {% csrf_token %}
-
             <div class="form-section">
                 <h3>Compétences couvertes par la formation</h3>
                 {% if skills_covered %}

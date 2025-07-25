@@ -19,20 +19,19 @@ from .utils import check_and_run_recommendations
 def ai_recommendations_list_view(request):
     """
     Vue pour afficher la liste détaillée des recommandations de formation de l'IA.
-    Permet également le filtrage et la recherche.
+    Permet également le filtrage et la recherche. les recommandations de formation de l'IA s'affiche en fonction du role
+    de l'utilisateur , tout pour un hr et conditinner par le departement pour un manager
     """
-
-    preferences = Preferences.objects.get(pk=1)
-
+    preferences = Preferences.objects.get(pk=1) # frequence a la quel l'ia nous fera de recommandation
     if request.user.is_manager is False and request.user.is_hr is False:
         return redirect('dashboard:access_refuse')
+    check_and_run_recommendations(preferences.frequence_recommendation) # fonction principale pour lancer la logique ia
 
-    check_and_run_recommendations(preferences.frequence_recommendation)
-
-    # Récupérer toutes les recommandations
-    recommendations = RecommendedTraining.objects.exclude(status='Terminée')
+    recommendations = RecommendedTraining.objects.exclude(status='Terminée')  # Récupérer toutes les recommandations faites par l'ia
     page_title = "Recommandations de Formation IA"
     user_department = request.user.department
+
+    # filtrer en fonction du role
     if not request.user.is_hr:
         recommendations = recommendations.filter(employee__department=user_department)
         page_title = f"Recommandations de formation (Département: {user_department.name})"
@@ -53,7 +52,6 @@ def ai_recommendations_list_view(request):
     if status_filter:
         recommendations = recommendations.filter(status=status_filter)
 
-    # Exemple de recherche par nom d'employé ou titre de formation:
     search_query = request.GET.get('q')
     if search_query:
         recommendations = recommendations.filter(
@@ -61,8 +59,6 @@ def ai_recommendations_list_view(request):
             Q(employee__last_name__icontains=search_query) |
             Q(course__title__icontains=search_query)
         )
-
-
     context = {
         'active_link':2,
         'recommendations': recommendations,
@@ -160,7 +156,6 @@ def formations_list_view(request):
             Q(course__title__icontains=search_query)
         )
 
-    # Pré-fetch des objets liés pour éviter les requêtes N+1 dans le template
     all_employee_trainings = all_employee_trainings.select_related('employee', 'course', 'recommended_by_ai')
     department = None
     if request.user.is_manager:
@@ -226,27 +221,24 @@ def manager_approval_list_view(request):
     Affiche la liste des formations d'employés qui attendent l'approbation du manager.
     Les managers ne voient que les formations des employés de leur département.
     """
-
     if request.user.is_manager is False and request.user.is_hr is False:
         return redirect('dashboard:access_refuse')
 
-
     # Si le manager a un département défini, filtre par ce département
-    if hasattr(request.user, 'employee_profile') and request.user.employee_profile.department:
+    if request.user.is_manager and request.user.employee_profile.department:
         department_employees = Employee.objects.filter(department=request.user.employee_profile.department)
         pending_trainings = EmployeeTraining.objects.filter(
             employee__in=department_employees,
             status='Attente validation manager'
         ).order_by('-enrollment_date')
         page_title = f"Formations en attente d'approbation (Département : {request.user.employee_profile.department.name})"
-    else:
-        # Si le manager n'a pas de département, affiche toutes les formations en attente
-        # c'est HR
+    elif request.user.is_hr: # c'est HR
         pending_trainings = EmployeeTraining.objects.filter(
             status='Attente validation manager'
         ).order_by('-enrollment_date')
         page_title = "Toutes les formations en attente d'approbation"
-
+    else:
+        return redirect('dashboard:access_refuse')
     context = {
         'pending_trainings': pending_trainings,
         'page_title': page_title,
@@ -263,7 +255,6 @@ def approve_training_and_evaluate_skills_view(request, employee_training_pk):
     Permet au manager d'approuver une formation terminée par un employé
     et d'évaluer/mettre à jour les compétences associées.
     """
-
     if request.user.is_manager is False and request.user.is_hr is False:
         return redirect('dashboard:access_refuse')
 
@@ -275,11 +266,9 @@ def approve_training_and_evaluate_skills_view(request, employee_training_pk):
         return redirect('Skill_Training:manager_approval_list')  # Redirige vers la liste des attentes
 
     # Vérifier que le manager est bien celui du département de l'employé
-    if hasattr(request.user, 'employee_profile') and request.user.employee_profile.department:
-        if employee_training.employee.department != request.user.employee_profile.department:
+    if request.user.department:
+        if employee_training.employee.department != request.user.department:
             if not request.user.is_hr:
-                messages.error(request,
-                               "Vous n'êtes pas autorisé à approuver cette formation (département non correspondant).")
                 return redirect('Skill_Training:manager_approval_list')
 
     # Récupérer les compétences associées à ce cours

@@ -26,8 +26,11 @@ def access_refuse(request):
 
 
 
-@login_required(login_url='dashboard:login')
+@login_required(login_url='dashboard:login') # l'utilisateur doit etre connecter pour voir cette page
 def home(request):
+    """
+        Dashboard home page, tableau de bord pour les managers et hr
+    """
 
     if request.user.is_manager is False and request.user.is_hr is False:
         return redirect('dashboard:access_refuse')
@@ -36,8 +39,9 @@ def home(request):
     user = request.user
     one_year_ago = today - timedelta(days=365*5)
 
-
+    # configuration du contexte d'affichage en fonction du role
     if user.is_hr:
+
         kpis = {
             'total_workforce': calculate_total_workforce(department=None),
             'retention_rate': calculate_retention_rate(one_year_ago, today, department=None),
@@ -46,14 +50,12 @@ def home(request):
             'total_payroll': calculate_total_payroll(department=None),
             'average_cost_per_employee': calculate_average_cost_per_employee(department=None),
         }
-
         distributions = {
             'by_department': get_workforce_distribution_by_department(),
             'by_gender': get_workforce_distribution_by_gender(),
             'by_age_range': get_workforce_distribution_by_age_range(department=None),
             'by_contract_type': get_workforce_distribution_by_contract_type(),
         }
-
         context = {
             'active_link':1,
             'kpis': kpis,
@@ -65,9 +67,9 @@ def home(request):
             'taux_canceled_course': taux_d_abandon_cours(),
             'page_title': "Tableau de Bord KPIs RH Généraux",
         }
-    elif user.is_manager:
-        department = user.department.name
 
+    elif user.is_manager:  # si l'utilisateur est un manager
+        department = user.department.name # n'affiche que les employees de son departement
         kpis = {
             'total_workforce': calculate_total_workforce(department),
             'retention_rate': calculate_retention_rate(one_year_ago, today, department),
@@ -76,7 +78,6 @@ def home(request):
             'total_payroll': calculate_total_payroll(department),
             'average_cost_per_employee': calculate_average_cost_per_employee(department),
         }
-
         context = {
             'active_link': 1,
             'departement': user.department.name,
@@ -88,11 +89,18 @@ def home(request):
             'rate_a_r': taux_de_recommandation_accepter(department=user.department),
 
         }
+    else : # si c'est un employee simple -
+        return redirect('dashboard:access_refuse')
 
     return render(request, 'index.html', context)
 
 
 def login_(request):
+    """
+        Vue de connexion pour tous les utilisateurs, en fonction du role et du poste
+        elle redirige vers la page ideal.
+    """
+
     form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -104,16 +112,15 @@ def login_(request):
                 login(request, user)
 
                 if user.is_manager or user.is_hr: # si l'employé est un manager
-                    return redirect('dashboard:home')
+                    return redirect('dashboard:home') # interface pour manager et HR
                 else :
-                    return redirect('employee:home')
+                    return redirect('employee:home')   # interface employee simple
             else:
                 context = {
                     'form': form,
                     'error': 'Mot de passe ou email incorrect',
                 }
                 return render(request, 'login.html', context)
-                # return HttpResponse(f"formulaire valide {email} - {password}")
         else:
             context = {
                 'form': form,
@@ -153,16 +160,3 @@ def taux_d_abandon_cours(department=None):
         return 0
     else:
         return trainings.count() * 100 / EmployeeTraining.objects.all().count()
-
-# utils funcitons
-def recommendation_per_manager(request, recommendations):
-    if request.user.is_manager:
-        # Supposons que le modèle Employee a un champ 'manager'
-        # et que CustomUser est lié à Employee via 'employee_account'
-        if request.user.employee_account and request.user.employee_account.employee_id:
-             # Récupérer tous les employés gérés par l'utilisateur connecté
-            managed_employees = Employee.objects.filter(manager=request.user.employee_account)
-            recommendations = recommendations.filter(employee__in=managed_employees)
-        else:
-            # Si l'utilisateur est manager mais n'a pas de compte employé ou ne gère personne
-            recommendations = RecommendedTraining.objects.none() # Aucune recommandation à montrer

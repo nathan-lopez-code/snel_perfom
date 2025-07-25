@@ -8,7 +8,10 @@ from .models import Employee
 
 
 def home_view(request):
-
+    """
+        Portail employee : affiche les informations sur l'employee
+        ainsi que les formations encours
+    """
 
     context = {
         'employee': request.user,
@@ -18,7 +21,13 @@ def home_view(request):
     return render(request, 'employee_page.html', context)
 
 
+
 def employee_profile(request, pk):
+
+    """
+        Page de profile pour l'employee , affiche ses informations personelles ,
+        ses competences , l'historique de formations suivi .
+    """
 
     employee = get_object_or_404(
         Employee.objects.select_related(
@@ -34,7 +43,6 @@ def employee_profile(request, pk):
         ),
         pk=pk
     )
-
     context = {
         'employee': employee,
         'employee_skills': employee.employee_skills.all(),  # Accéder aux données pré-chargées

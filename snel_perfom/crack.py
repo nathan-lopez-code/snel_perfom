@@ -4,9 +4,6 @@
 """
     GENERE UNE LISTE DE 20 EMPLOYEE ET LE REPARTI PAR DEPARTEMENTS
 """
-# Open your Django shell by navigating to your project's root directory
-# (where manage.py is located) and running:
-# python manage.py shell
 
 # --- Start Copy from here ---
 
