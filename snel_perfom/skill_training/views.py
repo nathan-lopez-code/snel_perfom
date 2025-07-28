@@ -42,11 +42,11 @@ def ai_recommendations_list_view(request):
         completed_recommendation = len(RecommendedTraining.objects.filter(status='Terminée').filter(employee__department=user_department))
 
     else:
-        approuved_recommendation =  RecommendedTraining.objects.filter(status='Acceptée').count(),
-        pending_recommendation = RecommendedTraining.objects.filter(status='En attente').count(),
-        rejected_recommendation = RecommendedTraining.objects.filter(status='Refusée').count(),
-        enrolled_recommendation = RecommendedTraining.objects.filter(status='Inscrite').count(),
-        completed_recommendation = RecommendedTraining.objects.filter(status='Terminée').count(),
+        approuved_recommendation =  len(RecommendedTraining.objects.filter(status='Acceptée')),
+        pending_recommendation = len(RecommendedTraining.objects.filter(status='En attente')),
+        rejected_recommendation = len(RecommendedTraining.objects.filter(status='Refusée')),
+        enrolled_recommendation = len(RecommendedTraining.objects.filter(status='Inscrite')),
+        completed_recommendation = len(RecommendedTraining.objects.filter(status='Terminée')),
 
     status_filter = request.GET.get('status')
     if status_filter:
@@ -201,8 +201,8 @@ def update_employee_training_status(request, pk):
         employee_training.mark_in_progress()
         message = f"La formation pour {employee_training.employee.full_name} a été marquée 'En cours'."
     elif action == 'Terminé':
-        c = employee_training.mark_attente_validation()
-        return redirect('Skill_Training:approve_training_and_evaluate_skills_view', c.pk)
+        employee_training.mark_attente_validation()
+        message = f"La formation pour {employee_training.employee.full_name} a été marquée 'Terminé'."
     elif action == 'Annulé':
         employee_training.mark_cancelled()
         message = f"La formation pour {employee_training.employee.full_name} a été marquée 'Annulée'."
@@ -225,13 +225,13 @@ def manager_approval_list_view(request):
         return redirect('dashboard:access_refuse')
 
     # Si le manager a un département défini, filtre par ce département
-    if request.user.is_manager and request.user.employee_profile.department:
-        department_employees = Employee.objects.filter(department=request.user.employee_profile.department)
+    if request.user.department:
+        department_employees = Employee.objects.filter(department=request.user.department)
         pending_trainings = EmployeeTraining.objects.filter(
             employee__in=department_employees,
             status='Attente validation manager'
         ).order_by('-enrollment_date')
-        page_title = f"Formations en attente d'approbation (Département : {request.user.employee_profile.department.name})"
+        page_title = f"Formations en attente d'approbation (Département : {request.user.department.name})"
     elif request.user.is_hr: # c'est HR
         pending_trainings = EmployeeTraining.objects.filter(
             status='Attente validation manager'
@@ -320,6 +320,8 @@ def approve_training_and_evaluate_skills_view(request, employee_training_pk):
                             employee_skill.last_assessed_date = date.today()
                             employee_skill.assessment_method = 'MANAGER_ASSESSMENT'
                             employee_skill.save()
+
+                employee_training.recommended_by_ai.mark_as_completed()
                 return redirect(
                     'Skill_Training:manager_approval_list')
 

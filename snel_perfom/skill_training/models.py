@@ -274,6 +274,8 @@ class EmployeeTraining(models.Model):
         self.status = 'Attente validation manager'
         if not self.enrollment_date:
             self.enrollment_date = self.enrollment_date  # Ou date.today()
+        if not self.completion_date:
+            self.completion_date = date.today()
         self.save()
         return self
 

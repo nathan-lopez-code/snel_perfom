@@ -110,7 +110,6 @@ def login_(request):
             user = authenticate(request, email=email, password=password)
             if user:
                 login(request, user)
-
                 if user.is_manager or user.is_hr: # si l'employé est un manager
                     return redirect('dashboard:home') # interface pour manager et HR
                 else :

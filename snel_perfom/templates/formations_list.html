@@ -142,9 +142,9 @@
                             Non
                         {% endif %}
                     </td>
-                    <td class="align-middle text-start ps-5 status"><span class="badge  fs-10 {% if rec.status == 'Inscrit' %} badge-phoenix-dark {%  elif rec.status == 'Terminé' %} badge-phoenix-primary {% elif rec.status == 'En Cours' %} badge-phoenix-light {% elif rec.status == 'Annulé' %} badge-phoenix-danger {% else %} badge-phoenix-info {% endif %} "><span class="badge-label">
+                    <td class="align-middle text-start ps-5 status"><span class="badge badge-phoenix-info fs-10 "><span class="badge-label">
                         {% if rec.status == 'Attente validation manager' %}<a href="{% url 'Skill_Training:approve_training_and_evaluate_skills_view' rec.pk %}">{{ rec.status }}</a>{% else %}{{ rec.status }}{% endif %}
-                    </span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span></td>
+                    </span></td>
                     <td class="align-middle text-end time white-space-nowrap">
                       <div class="">
                         <h6 class="text-body-highlight mb-0">{{ rec.enrollment_date|date:"d M Y" }}</h6>
@@ -169,13 +169,13 @@
                                 <button style="color: red" class="action-buttons dropdown-item" onclick="updateTrainingStatus('{{ rec.pk }}', 'Annuler')">Annuler</button>
                             </div>
                         {% elif rec.status == 'Terminé' %}
-
                             <p>Formation Terminée</p>
                         {% elif rec.status == 'Annulé' %}
-
                             <p>Formation Annulée</p>
+                        {% elif rec.status == "Attente validation manager" %}
+                            <a class="btn btn-completed" href="{% url 'Skill_Training:approve_training_and_evaluate_skills_view' rec.pk %}">Valider</a>
                         {% else %}
-                            <p>N/A</p>
+                            <p>--</p>
                         {% endif %}
                         </div>
 
