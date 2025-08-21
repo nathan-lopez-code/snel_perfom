@@ -1,0 +1,74 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %} Évaluations de Performance {% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="card-header">
+        <h3 class="mb-0">Évaluations de Performance</h3>
+    </div>
+    <div class="goals-container"> <div class="filter-section justify-content-end">
+            <div class="col-auto ms-auto">
+                {% if request.user.is_manager %}
+                <a href="{% url 'goals:perform-create' %}" class="btn btn-phoenix-success">
+                    <i class="fas fa-plus me-1"></i> Créer une évaluation
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if reviews %}
+        <div class="table-responsive mx-n1 px-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;">Employé Évalué</th>
+                        <th class="sort align-middle" scope="col" style="min-width:100px;">Score Global</th>
+                        <th class="sort align-middle" scope="col" style="min-width:150px;">Date</th>
+                        <th class="sort align-middle" scope="col" style="min-width:250px;">Commentaires</th>
+                        <th class="sort text-end pe-0 align-middle" scope="col" style="min-width:100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="list">
+                    {% for review in reviews %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="align-middle white-space-nowrap">{{ review.employee.get_full_name }}</td>
+                        <td class="align-middle white-space-nowrap">
+                            {% if review.overall_score == 5 %}
+                            <span class="badge badge-phoenix badge-phoenix-success fs-10">{{ review.get_overall_score_display }}</span>
+                            {% elif review.overall_score == 4 %}
+                            <span class="badge badge-phoenix badge-phoenix-info fs-10">{{ review.get_overall_score_display }}</span>
+                            {% elif review.overall_score == 3 %}
+                            <span class="badge badge-phoenix badge-phoenix-primary fs-10">{{ review.get_overall_score_display }}</span>
+                            {% elif review.overall_score == 2 %}
+                            <span class="badge badge-phoenix badge-phoenix-warning fs-10">{{ review.get_overall_score_display }}</span>
+                            {% else %}
+                            <span class="badge badge-phoenix badge-phoenix-danger fs-10">{{ review.get_overall_score_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle white-space-nowrap">{{ review.review_date|date:"d M Y" }}</td>
+                        <td class="align-middle">{{ review.comments|truncatechars:100 }}</td>
+                        <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
+                            {% if request.user.is_manager %}
+                            <a href="{% url 'goals:perform-update' pk=review.pk %}" class="btn btn-sm btn-info">Modifier</a>
+                            {% endif %}
+                            </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-file-signature fa-5x"></i>
+            <h4>Aucune évaluation de performance trouvée.</h4>
+            <p>Commencez par créer de nouvelles évaluations pour vos employés.</p>
+            {% if request.user.is_manager %}
+            <a href="{% url 'goals:perform-create' %}" class="btn btn-phoenix-success mt-3">Créer une évaluation</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

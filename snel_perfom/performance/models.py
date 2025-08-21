@@ -1,5 +1,5 @@
 from django.db import models
-from employee.models import Employee
+from employee.models import Employee, Department
 
 
 class PerformanceMetric(models.Model):
@@ -72,6 +72,46 @@ class Goal(models.Model):
     def __str__(self):
         return f"Objectif pour {self.employee.full_name}: {self.title}"
 
+
+class GoalDepartement(models.Model):
+    """
+    Represents a performance goal assigned to an employee.
+    """
+    STATUS_CHOICES = [
+        ('NOT_STARTED', 'Non Démarré'),
+        ('IN_PROGRESS', 'En Cours'),
+        ('COMPLETED', 'Complété'),
+        ('OVERDUE', 'En Retard'),
+        ('CANCELED', 'Annulé'),
+    ]
+
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='goals_department',
+                                 verbose_name="departement Cible")  # Changed from CustomUser to Employee
+    title = models.CharField(max_length=200, verbose_name="Titre de l'Objectif")
+    description = models.TextField(blank=True, null=True, verbose_name="Description Détaillée")
+    start_date = models.DateField(verbose_name="Date de Début")
+    end_date = models.DateField(verbose_name="Date de Fin Cible")
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NOT_STARTED',
+                              verbose_name="Statut de l'Objectif")
+
+    target_value = models.FloatField(null=True, blank=True, verbose_name="Valeur Cible")
+    current_value = models.FloatField(null=True, blank=True, verbose_name="Valeur Actuelle")
+
+    # The 'set_by' is still a user who logs in and sets the goal
+    set_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='goaldepartment_set', verbose_name="Défini par")
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de Création")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date de Dernière Mise à Jour")
+
+    class Meta:
+        verbose_name = "Objectif"
+        verbose_name_plural = "Objectifs"
+        ordering = ['-end_date', ]
+
+    def __str__(self):
+        return f"Objectif du departement {self.departement.name}: {self.title}"
 
 class PerformanceReview(models.Model):
     """

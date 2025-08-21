@@ -1,0 +1,156 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block title %} Mes Objectifs {% endblock %}
+
+{% block additional_resources %}
+    <style>
+        /* Styles spécifiques pour ce tableau (ajoutez-les à votre main.css) */
+        .goals-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            margin-top: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-section select,
+        .filter-section input[type="text"],
+        .filter-section button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: middle; /* Alignement vertical */
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .action-buttons a, .action-buttons button {
+            margin-right: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .progress-bar-container {
+            width: 100px; /* Largeur fixe pour la barre de progression */
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .empty-state h4 {
+            margin-top: 10px;
+            color: #495057;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="card-header">
+            <h3>Mes Objectifs</h3>
+        </div>
+        <div class="goals-container">
+            <div class="filter-section justify-content-end">
+                 <div class="col-auto ms-auto">
+                    <a href="{% url 'goals:create' %}" class="btn btn-phoenix-success">
+                        <i class="fas fa-plus me-1"></i> Créer un objectif
+                    </a>
+                </div>
+            </div>
+            {% if goals %}
+                <div class="table-responsive mx-n1 px-1 scrollbar">
+                    <table class="table fs-9 mb-0 border-top border-translucent">
+                        <thead>
+                            <tr>
+                                <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:200px;">Titre</th>
+                                <th class="sort align-middle" scope="col" style="min-width:150px;">Employé</th>
+                                <th class="sort align-middle" scope="col" style="min-width:120px;">Statut</th>
+                                <th class="sort text-start align-middle" scope="col" style="min-width:150px;">Progression</th>
+                                <th class="sort text-end align-middle" scope="col" style="min-width:100px;">Date de Fin</th>
+                                <th class="sort text-end pe-0 align-middle" scope="col" style="min-width:120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list">
+                            {% for goal in goals %}
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                    <td class="align-middle product white-space-nowrap">
+                                        <a class="fw-semibold" href="#">{{ goal.title }}</a>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap">
+                                        {{ goal.employee.get_full_name|default:"N/A" }}
+                                    </td>
+                                    <td class="align-middle white-space-nowrap">
+                                        {% if goal.status == 'COMPLETED' %}
+                                            <span class="badge badge-phoenix badge-phoenix-success fs-10">{{ goal.get_status_display }}</span>
+                                        {% elif goal.status == 'IN_PROGRESS' %}
+                                            <span class="badge badge-phoenix badge-phoenix-info fs-10">{{ goal.get_status_display }}</span>
+                                        {% elif goal.status == 'OVERDUE' %}
+                                            <span class="badge badge-phoenix badge-phoenix-warning fs-10">{{ goal.get_status_display }}</span>
+                                        {% elif goal.status == 'CANCELED' %}
+                                            <span class="badge badge-phoenix badge-phoenix-secondary fs-10">{{ goal.get_status_display }}</span>
+                                        {% else %}
+                                            <span class="badge badge-phoenix badge-phoenix-secondary fs-10">{{ goal.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle text-start">
+                                        {% if goal.target_value and goal.current_value is not None %}
+                                            {% with progress=goal.current_value|div:goal.target_value|mul:100 %}
+                                                <div class="progress progress-bar-container" role="progressbar" aria-valuenow="{{ progress|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="progress-bar" style="width: {{ progress|floatformat:0 }}%"></div>
+                                                </div>
+                                                <small class="ms-2">{{ progress|floatformat:0 }}%</small>
+                                            {% endwith %}
+                                        {% else %}
+                                            <small class="text-muted">N/A</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle text-end white-space-nowrap">
+                                        {{ goal.end_date|date:"d M Y" }}
+                                    </td>
+                                    <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
+                                        <a href="{% url 'goals:update' pk=goal.pk %}" class="btn btn-sm btn-info">Modifier</a>
+                                        <a href="#" class="btn btn-sm btn-danger">Supprimer</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-bullseye fa-5x"></i>
+                    <h4>Aucun objectif trouvé.</h4>
+                    <p>Commencez par créer de nouveaux objectifs pour vos employés.</p>
+                    <a href="{% url 'goals:create' %}" class="btn btn-phoenix-success mt-3">Créer un objectif</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

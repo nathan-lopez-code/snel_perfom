@@ -1,0 +1,200 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} Liste des Formations {% endblock %}
+
+
+{% block additional_resources %}
+    <style>
+        /* Styles spécifiques pour ce tableau (ajoutez-les à votre main.css) */
+        .trainings-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            margin-top: 20px;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-section label {
+            font-weight: bold;
+        }
+        .filter-section select,
+        .filter-section input[type="text"],
+        .filter-section button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .action-buttons button {
+            margin-right: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap; /* Empêche les boutons de s'enrouler */
+        }
+        .btn-in-progress { background-color: #ffc107; color: #333; } /* Jaune */
+        .btn-completed { background-color: #28a745; color: white; } /* Vert */
+        .btn-cancelled { background-color: #dc3545; color: white; } /* Rouge */
+        .status-badge {
+            padding: 5px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .status-PLANNED { background-color: #007bff; } /* Bleu */
+        .status-IN_PROGRESS { background-color: #ffc107; } /* Jaune */
+        .status-COMPLETED { background-color: #28a745; } /* Vert */
+        .status-CANCELLED { background-color: #dc3545; } /* Rouge */
+        .ai-badge {
+            background-color: #6f42c1; /* Violet */
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block navigation1 %}
+    {% if not request.user.is_simple_employee %}
+             <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
+        <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+          <!-- scrollbar removed-->
+          <div class="navbar-vertical-content">
+            <ul class="navbar-nav flex-column" id="navbarVerticalNav">
+              <li class="nav-item">
+                <!-- parent pages-->
+                <div class="nav-item-wrapper"><a class="nav-link dropdown-indicator label-1" href="#nv-home" role="button" data-bs-toggle="collapse" aria-expanded="true" aria-controls="nv-home">
+                    <div class="d-flex align-items-center">
+                      <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="pie-chart"></span></span><span class="nav-link-text">Tableau de board</span>
+                    </div>
+                  </a>
+                  <div class="parent-wrapper label-1">
+                    <ul class="nav collapse parent show" data-bs-parent="#navbarVerticalCollapse" id="nv-home">
+                      <li class="collapsed-nav-item-title d-none">Dashboard</li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 1 %}active{% endif %}" href="{%  url 'dashboard:home' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Accueil</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'Skill_Training:ai_recommandations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Recommendations IA</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                      <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Attente approbation</span></div>
+                        </a><!-- more inner pages-->
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="navbar-vertical-footer"><button class="btn navbar-vertical-toggle border-0 fw-semibold w-100 white-space-nowrap d-flex align-items-center"><span class="uil uil-left-arrow-to-left fs-8"></span><span class="uil uil-arrow-from-right fs-8"></span><span class="navbar-vertical-footer-text ms-2">Collapsed View</span></button></div>
+      </nav>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="content">
+        <div class="card-header">
+            <h3>Liste des Formations</h3>
+        </div>
+        <div class="card-body table-responsive">
+            <div class="filter-section">
+                <form class="col-6 d-flex align-items-center" method="GET" action="{% url 'course:trainingcourse-list' %}">
+                    <div class="col-auto d-flex justify-content-between">
+                        <input class="form-control col-3" type="text" name="q" id="search-query" placeholder="Rechercher par titre, fournisseur..." value="{{ request.GET.q }}">
+                        <button class="button button-form btn-phoenix-success" type="submit">Rechercher</button>
+                    </div>
+                </form>
+                {% if request.user.is_hr %}
+                <div class="col-auto ms-auto">
+                    <a href="{% url 'course:trainingcourse-add' %}" class="btn btn-phoenix-success">Ajouter une formation</a>
+                </div>
+                {% endif %}
+
+            </div>
+            <div class="table-responsive mx-n1 px-1 scrollbar">
+                {% if training_courses %}
+                    <table class="table fs-9 mb-0 border-top border-translucent p-3">
+                        <thead>
+                            <tr>
+                                <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:200px;">Titre</th>
+                                <th class="sort align-middle" scope="col" style="min-width:100px;">Type</th>
+                                <th class="sort align-middle" scope="col" style="min-width:150px;">Fournisseur</th>
+                                <th class="sort text-end align-middle" scope="col">Durée (Heures)</th>
+                                {% if request.user.is_hr  %}
+                                <th class="sort text-end pe-0 align-middle" scope="col">Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody style="padding: 10px">
+                            {% for course in training_courses %}
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static p-3">
+                                    <td class="align-middle product white-space-nowrap">
+                                        <a class="fw-semibold" href="{% url 'course:detail_course' course.id %}">{{ course.title }}</a>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap">
+                                        {{ course.get_training_type_display }}
+                                    </td>
+                                    <td class="align-middle white-space-nowrap">
+                                        {{ course.provider }}
+                                    </td>
+                                    <td class="align-middle text-end time white-space-nowrap">
+                                        {{ course.duration_hours }}
+                                    </td>
+                                    {% if request.user.is_hr  %}
+                                    <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
+
+                                        <a class="btn btn-sm btn-info" href="{% url 'course:trainingcourse-update' pk=course.pk %}">Modifier</a>
+                                        <a class="btn btn-sm btn-danger" href="{% url 'course:trainingcourse-delete' pk=course.pk %}">Supprimer</a>
+
+                                    </td>
+                                {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Aucune formation trouvée.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

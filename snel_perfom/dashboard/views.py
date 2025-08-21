@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from dashboard.forms import LoginForm
 from employee.models import Employee, Department
+from performance.models import GoalDepartement
 from skill_training.models import RecommendedTraining, EmployeeTraining
 from django.contrib.auth import authenticate
 from .utils_ import (
@@ -78,9 +79,11 @@ def home(request):
             'total_payroll': calculate_total_payroll(department),
             'average_cost_per_employee': calculate_average_cost_per_employee(department),
         }
+
         context = {
             'active_link': 1,
             'departement': user.department.name,
+            'objectif_atteint' : GoalDepartement.objects.filter(department=user.department).filter(status="COMPLETED").count(),
             'kpis': kpis,
             'employees_in_department': Employee.objects.filter(department=user.department).exclude(employee_id=user.employee_id),
             'pending_recommendation': RecommendedTraining.objects.filter(status='En attente').filter(employee__department=user.department).count(),
@@ -112,6 +115,10 @@ def login_(request):
                 login(request, user)
                 if user.is_manager or user.is_hr: # si l'employé est un manager
                     return redirect('dashboard:home') # interface pour manager et HR
+
+                elif user.is_admin : # si c'est un administrateur
+                    return redirect('administration:home')
+
                 else :
                     return redirect('employee:home')   # interface employee simple
             else:

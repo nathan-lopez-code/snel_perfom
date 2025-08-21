@@ -3,6 +3,7 @@ from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
+from performance.models import Goal, GoalDepartement
 from skill_training.models import EmployeeSkill, RecommendedTraining, EmployeeTraining
 from .models import Employee
 
@@ -15,6 +16,8 @@ def home_view(request):
 
     context = {
         'employee': request.user,
+        'goals': Goal.objects.filter(employee=request.user),
+        'goal_departement': GoalDepartement.objects.filter(department=request.user.department),
         'enrollments': EmployeeTraining.objects.filter(employee=request.user).order_by('-enrollment_date'),
     }
 

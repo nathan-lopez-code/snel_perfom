@@ -1,20 +1,47 @@
+from datetime import date
+
 from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from employee.models import Employee
 from skill_training.models import TrainingCourse, EmployeeTraining, EmployeeSkill
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+
+class TrainingCourseListView(ListView):
+    model = TrainingCourse
+    template_name = 'trainingcourse_list.html'
+    context_object_name = 'training_courses'
+
+class TrainingCourseCreateView(CreateView):
+    model = TrainingCourse
+    template_name = 'trainingcourse_form.html'
+    fields = ['title', 'description', 'provider', 'duration_hours', 'cost', 'skills_covered', 'training_type', 'url_link']
+    success_url = reverse_lazy('training:trainingcourse-list')
+
+class TrainingCourseUpdateView(UpdateView):
+    model = TrainingCourse
+    template_name = 'trainingcourse_form.html'
+    fields = ['title', 'description', 'provider', 'duration_hours', 'cost', 'skills_covered', 'training_type', 'url_link']
+    success_url = reverse_lazy('training:trainingcourse-list')
+
+class TrainingCourseDeleteView(DeleteView):
+    model = TrainingCourse
+    template_name = 'trainingcourse_confirm_delete.html'
+    success_url = reverse_lazy('training:trainingcourse-list')
+
 
 
 @login_required(login_url='dashboard:login')
 def list_course(request):
-    if request.user.is_hr is False:
-        return redirect('dashboard:access_refuse')
-    else:
-        context = {
-            'all_courses': TrainingCourse.objects.all()
-        }
-        return render(request, 'creation_formation.html', context)
+
+    context = {
+        'all_courses': TrainingCourse.objects.all()
+    }
+    return render(request, 'liste_formation.html', context)
 
 
 @login_required(login_url='dashboard:login')

@@ -40,3 +40,12 @@ def get_item(dictionary, key):
     if isinstance(dictionary, dict) and key in dictionary:
         return dictionary.get(key)
     return None
+
+
+@register.filter
+def div(value, arg):
+    """Divides the value by the argument."""
+    try:
+        return float(value) / float(arg)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return None

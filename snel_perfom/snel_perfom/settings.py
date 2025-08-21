@@ -28,11 +28,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.humanize',
     'django.contrib.staticfiles',
     'skill_training.apps.SkillTrainingConfig',
     'performance.apps.PerformanceConfig',
     'dashboard.apps.DashboardConfig',
     'employee.apps.EmployeeConfig',
+    'administration.apps.AdministrationConfig',
 
 ]
 

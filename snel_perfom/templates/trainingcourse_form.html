@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} {% if form.instance.pk %}Modifier{% else %}Créer{% endif %} une Formation {% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="card-header">
+            <h3>{% if form.instance.pk %}Modifier{% else %}Créer{% endif %} une Formation</h3>
+        </div>
+        <div class="trainings-container">
+            <form method="post">
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'training:trainingcourse-list' %}" class="btn btn-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-phoenix-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

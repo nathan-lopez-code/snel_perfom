@@ -131,6 +131,10 @@ class Employee(AbstractUser):
         help_text="Indique si l'utilisateur est un manager avec une équipe à gérer."
     )
 
+    is_admin = models.BooleanField(
+        default=False, verbose_name="Est Administrateur",
+    )
+
 
     # Personal Information
     date_of_birth = models.DateField(null=True, blank=True, verbose_name="Date de Naissance")
@@ -167,11 +171,13 @@ class Employee(AbstractUser):
 
 
     class Meta:
-        verbose_name = "Employé SNEL"
-        verbose_name_plural = "Employés SNEL"
+        verbose_name = "Utilisateur du systeme"
+        verbose_name_plural = "Utilisateurs du systeme"
         ordering = ['last_name', 'first_name']
 
     def __str__(self):
+        if not self.first_name and self.is_superuser:
+            return f"Administrateur {self.id}"
         return f"{self.first_name} {self.last_name} ({self.employee_id})"
 
     @property

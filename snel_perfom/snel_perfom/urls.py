@@ -13,6 +13,8 @@ urlpatterns = [
     path('training/', include('skill_training.urls', namespace='Skill_Training')), # application principal
     path('employee/', include('employee.urls', namespace='employee')), # application pour l'employee
     path('cours/', include('course.urls', namespace='course')), # app pour les formations
+    path('administration/', include('administration.urls', namespace='administration')),
+    path('goals/', include('performance.urls', namespace='goals')),# app pour les formations
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # configuration de fichier static pour l'hebergment
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
