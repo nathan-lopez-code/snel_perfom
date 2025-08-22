@@ -112,59 +112,6 @@
 
             </div>
             <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0 text-white">Objectifs du Département</h5>
-    </div>
-    <div class="card-body">
-        {% if goal_departement %}
-        <div class="table-responsive scrollbar">
-            <table class="table table-hover table-striped fs-9">
-                <thead>
-                    <tr>
-                        <th scope="col">Titre de l'Objectif</th>
-                        <th scope="col">Date de Début</th>
-                        <th scope="col">Date de Fin</th>
-                        <th scope="col">Statut</th>
-                        <th scope="col">Défini par</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for goal in goal_departement %}
-                    <tr>
-                        <td>
-                            <a href="#" class="text-body-emphasis fw-semibold">
-                                {{ goal.title }}
-                            </a>
-                        </td>
-                        <td>{{ goal.start_date|date:"d/m/Y" }}</td>
-                        <td>{{ goal.end_date|date:"d/m/Y" }}</td>
-                        <td>
-                            {% if goal.status == 'COMPLETED' %}
-                                <span class="badge badge-phoenix badge-phoenix-success fs-10">{{ goal.get_status_display }}</span>
-                            {% elif goal.status == 'IN_PROGRESS' %}
-                                <span class="badge badge-phoenix badge-phoenix-info fs-10">{{ goal.get_status_display }}</span>
-                            {% elif goal.status == 'OVERDUE' %}
-                                <span class="badge badge-phoenix badge-phoenix-warning fs-10">{{ goal.get_status_display }}</span>
-                            {% elif goal.status == 'CANCELED' %}
-                                <span class="badge badge-phoenix badge-phoenix-secondary fs-10">{{ goal.get_status_display }}</span>
-                            {% else %}
-                                <span class="badge badge-phoenix badge-phoenix-secondary fs-10">{{ goal.get_status_display }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ goal.set_by.get_full_name|default:"Administrateur" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            <span class="fas fa-info-circle me-2"></span> Aucun objectif n'a été fixé pour votre département pour le moment.
-        </div>
-        {% endif %}
-    </div>
-</div>
-            <div class="card shadow-sm mb-4">
     <div class="card-header bg-success text-white">
         <h5 class="mb-0 text-white">Mes Objectifs Individuels</h5>
     </div>

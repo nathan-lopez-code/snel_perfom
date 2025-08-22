@@ -194,9 +194,8 @@
                                     {% endif %}
                                 {% if request.user.is_simple_employee   %}
                                     <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
-
-                                        {%  if request.user|get_status:course == "Aucun" %}
-                                        <a class="btn btn-sm btn-success" href="{% url 'course:inscrire_employee' course_id=course.id %}">Inscrit</a>
+                                         {%  if request.user|get_status:course == "Aucun" %}
+                                        <a class="btn btn-sm btn-success" href="{% url 'course:inscrire_employee' course_id=course.id %}">S'Inscrire</a>
 
                                         {%  elif request.user|get_status:course == "Inscrit" %}
                                         <a class="btn btn-sm btn-info" href="{% url 'course:mark_course_inscrit' course_id=course|get_training_id:request.user %}">Encours</a>
@@ -211,7 +210,9 @@
 
                                         {%  elif request.user|get_status:course == "Annulé" %}
                                         <a class="btn btn-sm btn-info" href="{% url 'course:inscrire_employee' course_id=course.pk %}">inscrire a nouveau</a>
-                                        {% endif %}
+                                        {% else %}
+                                         <p class="badge status-badge small text-success"> formation terminée </p>
+                                         {% endif  %}
                                     </td>
                                 {% endif %}
                                 </tr>

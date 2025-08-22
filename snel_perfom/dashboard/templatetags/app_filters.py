@@ -55,10 +55,10 @@ def div(value, arg):
 
 @register.filter
 def get_status(employee, course):
-    training_cours = EmployeeTraining.object.filter(employee=employee).filter(course=course)
+    training_cours = EmployeeTraining.objects.filter(employee=employee).filter(course=course)
 
     if training_cours:
-        return training_cours.status
+        return training_cours.first().status
     else:
         return "Aucun"
 
@@ -66,8 +66,8 @@ def get_status(employee, course):
 @register.filter
 def get_training_id(course, employee):
 
-    training = EmployeeTraining.object.filter(course=course, employee=employee)
-    if training:
+    try:
+        training = EmployeeTraining.objects.get(course=course, employee=employee)
         return training.id
-    else:
+    except:
         return 0
