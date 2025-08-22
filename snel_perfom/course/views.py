@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.checks import messages
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
+
+from course.forms import TrainingCourseForm
 from employee.models import Employee
 from skill_training.models import TrainingCourse, EmployeeTraining, EmployeeSkill
 from django.shortcuts import render
@@ -18,8 +20,8 @@ class TrainingCourseListView(ListView):
 
 class TrainingCourseCreateView(CreateView):
     model = TrainingCourse
+    form_class = TrainingCourseForm
     template_name = 'trainingcourse_form.html'
-    fields = ['title', 'description', 'provider', 'duration_hours', 'cost', 'skills_covered', 'training_type', 'url_link']
     success_url = reverse_lazy('training:trainingcourse-list')
 
 class TrainingCourseUpdateView(UpdateView):
@@ -89,6 +91,32 @@ def mark_course_inscrit(request, course_id):
     training = get_object_or_404(EmployeeTraining, pk=course_id)
     training.mark_in_progress()
     return redirect('employee:home')
+
+@login_required(login_url='dashboard:login')
+def mark_course_cancel(request, course_id):
+    training = get_object_or_404(EmployeeTraining, pk=course_id)
+    training.mark_cancelled()
+    return redirect('employee:home')
+
+
+@login_required(login_url='dashboard:login')
+def inscrire_employee(request, course_id):
+    if request.user.is_simple_employee:
+        try:
+            course = TrainingCourse.objects.get(pk=course_id)
+            employee_training = EmployeeTraining.objects.create(
+                course=course,
+                employee=request.user,
+                status='Inscrit',
+            )
+            employee_training.save()
+            return redirect('employee:home')
+        except:
+            return redirect("dashboard:access_refuse")
+
+    return redirect('employee:home')
+
+
 
 
 @login_required(login_url='dashboard:login')

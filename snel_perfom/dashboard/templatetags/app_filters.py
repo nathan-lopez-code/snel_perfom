@@ -1,5 +1,7 @@
 from django import template
 
+from skill_training.models import EmployeeTraining
+
 register = template.Library()
 
 @register.filter
@@ -49,3 +51,23 @@ def div(value, arg):
         return float(value) / float(arg)
     except (ValueError, TypeError, ZeroDivisionError):
         return None
+
+
+@register.filter
+def get_status(employee, course):
+    training_cours = EmployeeTraining.object.filter(employee=employee).filter(course=course)
+
+    if training_cours:
+        return training_cours.status
+    else:
+        return "Aucun"
+
+
+@register.filter
+def get_training_id(course, employee):
+
+    training = EmployeeTraining.object.filter(course=course, employee=employee)
+    if training:
+        return training.id
+    else:
+        return 0

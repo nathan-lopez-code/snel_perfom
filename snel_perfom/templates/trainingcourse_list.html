@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load app_filters %}
 {% block title %} Liste des Formations {% endblock %}
 
 
@@ -162,6 +163,10 @@
                                 {% if request.user.is_hr  %}
                                 <th class="sort text-end pe-0 align-middle" scope="col">Actions</th>
                                 {% endif %}
+                                {% if request.user.is_simple_employee  %}
+                                <th class="sort text-end pe-0 align-middle" scope="col">Actions</th>
+                                {% endif %}
+
                             </tr>
                         </thead>
                         <tbody style="padding: 10px">
@@ -185,6 +190,28 @@
                                         <a class="btn btn-sm btn-info" href="{% url 'course:trainingcourse-update' pk=course.pk %}">Modifier</a>
                                         <a class="btn btn-sm btn-danger" href="{% url 'course:trainingcourse-delete' pk=course.pk %}">Supprimer</a>
 
+                                    </td>
+                                    {% endif %}
+                                {% if request.user.is_simple_employee   %}
+                                    <td class="action-buttons align-middle white-space-nowrap text-center pe-0">
+
+                                        {%  if request.user|get_status:course == "Aucun" %}
+                                        <a class="btn btn-sm btn-success" href="{% url 'course:inscrire_employee' course_id=course.id %}">Inscrit</a>
+
+                                        {%  elif request.user|get_status:course == "Inscrit" %}
+                                        <a class="btn btn-sm btn-info" href="{% url 'course:mark_course_inscrit' course_id=course|get_training_id:request.user %}">Encours</a>
+                                        <a class="btn btn-sm btn-danger" href="{% url 'course:mark_course_cancel' course_id=course|get_training_id:request.user %}">Annuler</a>
+
+                                        {%  elif request.user|get_status:course == "En Cours" %}
+                                            <a class="btn btn-sm btn-info" href="{% url 'course:mark_attente_validation' course_id=course|get_training_id:request.user %}">Terminer</a>
+                                            <a class="btn btn-sm btn-danger" href="{% url 'course:mark_course_cancel' course_id=course|get_training_id:request.user%}">Annuler</a>
+
+                                        {%  elif request.user|get_status:course == "Attente validation manager" %}
+                                        <a class="btn btn-sm btn-info" href="#">Attente action manager</a>
+
+                                        {%  elif request.user|get_status:course == "Annulé" %}
+                                        <a class="btn btn-sm btn-info" href="{% url 'course:inscrire_employee' course_id=course.pk %}">inscrire a nouveau</a>
+                                        {% endif %}
                                     </td>
                                 {% endif %}
                                 </tr>

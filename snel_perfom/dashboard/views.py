@@ -60,6 +60,7 @@ def home(request):
         context = {
             'active_link':1,
             'kpis': kpis,
+            'employees': Employee.objects.all().exclude(is_superuser=True),
             'user': user,
             'distributions': distributions,
             'pending_recommendation': RecommendedTraining.objects.filter(status='En attente').count(),
@@ -78,10 +79,12 @@ def home(request):
             'average_seniority': calculate_average_seniority(),
             'total_payroll': calculate_total_payroll(department),
             'average_cost_per_employee': calculate_average_cost_per_employee(department),
+
         }
 
         context = {
             'active_link': 1,
+
             'departement': user.department.name,
             'objectif_atteint' : GoalDepartement.objects.filter(department=user.department).filter(status="COMPLETED").count(),
             'kpis': kpis,

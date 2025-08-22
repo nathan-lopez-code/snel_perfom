@@ -82,18 +82,25 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Liste de formations </span></div>
                         </a><!-- more inner pages-->
                       </li>
-
-                      {%  if request.user.is_manager %}
-                          <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
                               <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
                             </a><!-- more inner pages-->
+                      </li>
+
+                      {% if request.user.is_hr %}
+                          <li class="nav-item"><a class="nav-link {% if active_link == 6 %}active{% endif %}" href="{% url 'course:trainingcourse-add' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text"> Ajouter un cours </span></div>
+                            </a><!-- more inner pages-->
                           </li>
+                      {% endif %}
+
+                      {%  if request.user.is_manager %}
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text">Evaluer performence</span></div>
+                              <div class="d-flex align-items-center"><span class="nav-link-text"> Evaluation formation </span></div>
                             </a><!-- more inner pages-->
                           </li>
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:create' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text">Fixer des objectif</span></div>
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Fixer un objectif</span></div>
                             </a><!-- more inner pages-->
                           </li>
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:list' %}">
@@ -101,11 +108,11 @@
                             </a><!-- more inner pages-->
                           </li>
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:perform-list' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text">Liste d'evaluation performence</span></div>
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Liste d'evaluation</span></div>
                             </a><!-- more inner pages-->
                           </li>
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:perform-create' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text">Evaluer performence</span></div>
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Evaluer un agent</span></div>
                             </a><!-- more inner pages-->
                           </li>
                       {% endif  %}
@@ -362,6 +369,75 @@
 
             </div>
           </div>
+             <div class="col-12 col-xxl-6 mb-3 mb-sm-0">
+              <div class="row">
+                <div class="col-sm-12 col-md-12 col-xxl-12 mb-md-3 mb-lg-0">
+                  <h3>Liste d'employés </h3>
+                  <p class="text-body-tertiary">Voici la liste de tout les employees</p>
+                  <div class="row g-0">
+                      <div class="table-responsive mx-n1 px-1 scrollbar">
+                          {% if employees %}
+                          <table class="table fs-9 mb-0 border-top border-translucent">
+                              <thead>
+                                  <tr>
+                                      <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:200px;">Employé</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Matricule</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Poste</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:100px;">Statut</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Type Contrat</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Date d'embauche</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:150px;">Email</th>
+                                      <th class="sort align-middle" scope="col" style="min-width:100px;">Téléphone</th>
+                                  </tr>
+                              </thead>
+                              <tbody class="list">
+                                  {% for employee in employees %}
+                                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                      <td class="align-middle customer white-space-nowrap">
+                                          <a class="d-flex align-items-center text-body" href="{% url 'employee:employee_profile' pk=employee.pk %}">
+                                              {% if employee.profile_picture %}
+                                                  <div class="avatar avatar-l"><img class="rounded-circle" src="{{ employee.profile_picture.url }}" alt="{{ employee.full_name }}" /></div>
+                                              {% else %}
+                                                  <div class="avatar avatar-l"> <div class="avatar-name rounded-circle"><span>{{ employee.full_name|slice:":1" }}</span></div></div>
+                                              {% endif %}
+                                              <h6 class="mb-0 ms-3 text-body">{{ employee.full_name }}</h6>
+                                          </a>
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.employee_id }}</td>
+                                      <td class="align-middle white-space-nowrap">
+                                          {% if employee.position %}
+                                              {{ employee.position.title }}
+                                          {% else %}
+                                              N/A
+                                          {% endif %}
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">
+                                          <span class="badge badge-phoenix fs-10
+                                              {% if employee.employee_status == 'ACT' %}badge-phoenix-success
+                                              {% elif employee.employee_status == 'CON' %}badge-phoenix-warning
+                                              {% elif employee.employee_status == 'SUS' %}badge-phoenix-danger
+                                              {% else %}badge-phoenix-secondary{% endif %}">
+                                              {{ employee.get_employee_status_display }}
+                                          </span>
+                                      </td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.get_contract_type_display }}</td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.hire_date|date:"d M Y" }}</td>
+                                      <td class="align-middle white-space-nowrap">{{ employee.email }}</td>
+                                      <td class="align-middle white-space-nowrap">
+                                          {% if employee.phone_number %}{{ employee.phone_number }}{% else %}N/A{% endif %}
+                                      </td>
+                                  </tr>
+                                  {% endfor %}
+                              </tbody>
+                          </table>
+                          {% else %}
+                              <p class="text-muted mt-3">Aucun employé trouvé dans ce département.</p>
+                          {% endif %}
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
         {% else %}
             <div class="col-12 col-xxl-6 mb-3 mb-sm-0">
               <div class="row">
