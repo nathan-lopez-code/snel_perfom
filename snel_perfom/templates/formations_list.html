@@ -115,7 +115,6 @@
                   <tr>
                     <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;" data-sort="product">Employé</th>
                     <th class="sort align-middle" scope="col" data-sort="customer" style="min-width:100px;">Formation </th>
-                    <th class="sort align-middle" scope="col" data-sort="rating" style="min-width:50px;">Recommene par IA ?</th>
                     <th class="sort text-start ps-5 align-middle" scope="col" data-sort="status">Statut</th>
                     <th class="sort text-end align-middle" scope="col" data-sort="time">Date d'inscription</th>
                     <th class="sort text-end  pe-0 align-middle" scope="col" >Action</th>
@@ -135,14 +134,7 @@
                       </a></td>
                     <td class="align-middle product white-space-nowrap"><a class="fw-semibold" href="{% url 'course:detail_course' course_id=rec.course.id %}">{{ rec.course.title }}</a></td>
 
-                    <td class="align-middle">
-                        {% if rec.recommended_by_ai %}
-                            <span class="ai-badge">Oui</span>
-                            {% else %}
-                            Non
-                        {% endif %}
-                    </td>
-                    <td class="align-middle text-start ps-5 status"><span class="badge badge-phoenix-info fs-10 "><span class="badge-label">
+                    <td class="align-middle text-start ps-5 status ai-badge"><span class="badge badge-phoenix-info fs-10 "><span class="badge-label">
                         {% if rec.status == 'Attente validation manager' %}<a href="{% url 'Skill_Training:approve_training_and_evaluate_skills_view' rec.pk %}">{{ rec.status }}</a>{% else %}{{ rec.status }}{% endif %}
                     </span></td>
                     <td class="align-middle text-end time white-space-nowrap">

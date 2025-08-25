@@ -1,7 +1,7 @@
 from django import forms
 
 from employee.models import Employee
-from .models import Goal, PerformanceReview
+from .models import Goal, PerformanceReview, ElementEvaluation
 
 
 class GoalCreateForm(forms.ModelForm):
@@ -48,6 +48,17 @@ class GoalUpdateStatusForm(forms.ModelForm):
         }
 
 
+class ElementEvaluationForm(forms.ModelForm):
+
+    class Meta:
+        model = ElementEvaluation
+        fields = ['domaine', 'objectif']
+        widgets = {
+            'domaine': forms.Select(attrs={'class': 'form-select'}),
+            'objectif': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
 class PerformanceReviewForm(forms.ModelForm):
     """
     Formulaire pour créer et modifier une revue de performance.
@@ -55,17 +66,32 @@ class PerformanceReviewForm(forms.ModelForm):
 
     class Meta:
         model = PerformanceReview
-        fields = ['employee', 'review_date', 'overall_score', 'comments', 'next_steps']
+        # Inclure tous les champs pertinents pour le formulaire
+        fields = [
+            'employee', 'review_date', 'comments',
+            'securite_au_travail', 'competences_techniques',
+            'efficacite_operationnelle', 'qualite_service_client',
+            'collaboration_equipe', 'formations_recommender',
+        ]
+
+        # Ajouter des widgets pour un style CSS moderne
         widgets = {
             'employee': forms.Select(attrs={'class': 'form-select'}),
             'review_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'overall_score': forms.Select(attrs={'class': 'form-select'}),
             'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'next_steps': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+
+            # Widgets pour les domaines de compétence
+            'securite_au_travail': forms.Select(attrs={'class': 'form-select'}),
+            'competences_techniques': forms.Select(attrs={'class': 'form-select'}),
+            'efficacite_operationnelle': forms.Select(attrs={'class': 'form-select'}),
+            'qualite_service_client': forms.Select(attrs={'class': 'form-select'}),
+            'collaboration_equipe': forms.Select(attrs={'class': 'form-select'}),
+
+            'formations_recommender': forms.SelectMultiple(attrs={'class': 'form-select'}),
         }
 
     def __init__(self, *args, **kwargs):
-        # Récupère l'évaluateur (manager) pour filtrer les employés
+        # Récupère le manager depuis la vue pour filtrer la liste des employés
         reviewer = kwargs.pop('reviewer', None)
         super().__init__(*args, **kwargs)
 

@@ -42,7 +42,7 @@ class EmployeeAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email', 'password', 'first_name', 'last_name', 'gender', 'date_of_birth', 'hire_date',
-                       'department', 'position'),
+                       'department', 'position', 'bloquer'),
         }),
     )
 

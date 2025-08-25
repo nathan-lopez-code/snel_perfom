@@ -19,7 +19,7 @@
     <link rel="manifest" href="{% static 'img/favicons/manifest.json' %}">
     <meta name="msapplication-TileImage" content="{% static 'img/favicons/mstile-150x150.png' %}">
     <meta name="theme-color" content="#ffffff">
-    <script src="vendors/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'vendors/simplebar/simplebar.min.js' %}"></script>
     <script src="{% static 'js/config.js' %}"></script>
 
     <!-- ===============================================-->
@@ -78,12 +78,9 @@
                         </a><!-- more inner pages-->
                       </li>
 
-                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'course:trainingcourse-list' %}">
-                          <div class="d-flex align-items-center"><span class="nav-link-text">Liste de formations </span></div>
-                        </a><!-- more inner pages-->
-                      </li>
-                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+
+                      <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'goals:element-liste' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Liste Element evaluation</span></div>
                             </a><!-- more inner pages-->
                       </li>
 
@@ -95,9 +92,9 @@
                       {% endif %}
 
                       {%  if request.user.is_manager %}
-                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
-                              <div class="d-flex align-items-center"><span class="nav-link-text"> Evaluation formation </span></div>
-                            </a><!-- more inner pages-->
+                          <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
+                                  <div class="d-flex align-items-center"><span class="nav-link-text">Agent en formation</span></div>
+                                </a><!-- more inner pages-->
                           </li>
                           <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:create' %}">
                               <div class="d-flex align-items-center"><span class="nav-link-text">Fixer un objectif</span></div>
@@ -289,6 +286,7 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <div class="d-flex d-sm-block justify-content-between">
+                    {% if departement %}
                       <div class="border-bottom-sm border-translucent mb-sm-4">
                         <div class="d-flex align-items-center">
                           <div class="d-flex align-items-center icon-wrapper-sm shadow-primary-100" style="transform: rotate(-7.45deg);"><span class="fa-solid fa-folder text-primary fs-7 z-1 ms-2"></span></div>
@@ -296,9 +294,22 @@
                         </div>
                         <p class="text-primary mt-2 fs-6 fw-bold mb-0 mb-sm-4">{{ objectif_atteint }} <span class="fs-8 text-body lh-lg">Ojectifs atteint </span></p>
                       </div>
-                      <div class="d-flex flex-column justify-content-center flex-between-end d-sm-block text-end text-sm-start"><span class="badge badge-phoenix badge-phoenix-success fs-10 mb-2">{{ rate_a_r|floatformat:"2" }}%</span>
-                        <p class="mb-0 fs-9 text-body-tertiary">Taux d'objectif atteint</p>
+                    {% else %}
+                        <div class="border-bottom-sm border-translucent mb-sm-4">
+                            <div class="d-flex align-items-center"><a href="{% url 'goals:element-create' %}" class="btn btn-phoenix-secondary"> Poster element d'evaluation</a></div>
+                        </div>
+
+                    {% endif %}
+
+                      <div class="d-flex flex-column justify-content-center flex-between-end d-sm-block text-end text-sm-start">
+                         {% if departement %}
+                          <span class="badge badge-phoenix badge-phoenix-success fs-10 mb-2">{{ rate_a_r|floatformat:"2" }}%</span>
+                          <p class="mb-0 fs-9 text-body-tertiary">Taux d'objectif atteint</p>
+                           {% else %}
+                          <a href="{% url 'course:trainingcourse-add' %}" class="btn btn-phoenix-info">Poster une nouvelle formations</a>
+                          {% endif %}
                       </div>
+
                     </div>
                   </div>
                 </div>

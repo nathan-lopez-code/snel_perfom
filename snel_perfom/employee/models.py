@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from datetime import date
 
+from numpy.f2py.crackfortran import verbose
+
 
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="Nom du Département")
@@ -168,6 +170,8 @@ class Employee(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de Création Fiche")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Dernière Maj Fiche")
 
+    bloquer = models.BooleanField(default=False, verbose_name="Cochez cette case pour bloquer l'utilisateur")
+
 
 
     class Meta:
@@ -179,6 +183,9 @@ class Employee(AbstractUser):
         if not self.first_name and self.is_superuser:
             return f"Administrateur {self.id}"
         return f"{self.first_name} {self.last_name} ({self.employee_id})"
+
+
+
 
     @property
     def full_name(self):
@@ -208,6 +215,12 @@ class Employee(AbstractUser):
 
 
     def save(self, *args, **kwargs):
+
+        if self.bloquer:
+            super().save(*args, **kwargs)
+            self.is_active = False
+            self.save()
+
 
         if not self.employee_id:
 

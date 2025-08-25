@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
-from performance.models import Goal, GoalDepartement
+from performance.models import Goal, GoalDepartement, PerformanceReview
 from skill_training.models import EmployeeSkill, RecommendedTraining, EmployeeTraining
 from .models import Employee
 
@@ -15,6 +15,7 @@ def home_view(request):
     """
 
     context = {
+        'review': PerformanceReview.objects.filter(employee=request.user).last(),
         'employee': request.user,
         'goals': Goal.objects.filter(employee=request.user),
         'goal_departement': GoalDepartement.objects.filter(department=request.user.department),
@@ -47,6 +48,7 @@ def employee_profile(request, pk):
         pk=pk
     )
     context = {
+        'review': PerformanceReview.objects.filter(employee=request.user).last(),
         'employee': employee,
         'employee_skills': employee.employee_skills.all(),  # Accéder aux données pré-chargées
         'employee_trainings': employee.trainings_taken.all(),  # Accéder aux données pré-chargées

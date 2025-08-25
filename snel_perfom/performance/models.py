@@ -1,5 +1,6 @@
 from django.db import models
 from employee.models import Employee, Department
+from skill_training.models import TrainingCourse
 
 
 class PerformanceMetric(models.Model):
@@ -111,7 +112,8 @@ class GoalDepartement(models.Model):
         ordering = ['-end_date', ]
 
     def __str__(self):
-        return f"Objectif du departement {self.departement.name}: {self.title}"
+        return f"Objectif du departement {self.departement.name}: {self.title}"\
+
 
 class PerformanceReview(models.Model):
     """
@@ -132,12 +134,19 @@ class PerformanceReview(models.Model):
                                  related_name='reviews_conducted', verbose_name="Évaluateur")
 
     review_date = models.DateField(verbose_name="Date de l'Évaluation")
-    overall_score = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Score Global")
     comments = models.TextField(verbose_name="Commentaires Généraux")
-    next_steps = models.TextField(blank=True, null=True, verbose_name="Prochaines Étapes et Plan de Développement")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date de Création")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Date de Dernière Mise à Jour")
+
+    formations_recommender = models.ManyToManyField(TrainingCourse, null=True, blank=True, verbose_name="Formation recommender")
+
+    # domaine
+    securite_au_travail = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Sécurité au Travail")
+    competences_techniques = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Compétences Techniques")
+    efficacite_operationnelle = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Efficacité Opérationnelle")
+    qualite_service_client = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Qualité du Service Client")
+    collaboration_equipe = models.IntegerField(choices=SCORE_CHOICES, verbose_name="Collaboration en Équipe")
 
     class Meta:
         verbose_name = "Évaluation de Performance"
@@ -145,8 +154,33 @@ class PerformanceReview(models.Model):
         unique_together = ('employee', 'review_date')
         ordering = ['-review_date', 'employee__last_name']
 
+    def get_score_fields(self):
+        """Retourne les champs de score avec leurs noms lisibles."""
+        return [
+            ('securite_au_travail', self._meta.get_field('securite_au_travail').verbose_name),
+            ('competences_techniques', self._meta.get_field('competences_techniques').verbose_name),
+            ('efficacite_operationnelle', self._meta.get_field('efficacite_operationnelle').verbose_name),
+            ('qualite_service_client', self._meta.get_field('qualite_service_client').verbose_name),
+            ('collaboration_equipe', self._meta.get_field('collaboration_equipe').verbose_name),
+        ]
+
     def __str__(self):
         return f"Évaluation de {self.employee.full_name} le {self.review_date}"
+
+class ElementEvaluation(models.Model):
+    DOMAINE = (
+        ('Efficacité Opérationnelle', 'Efficacité Opérationnelle'),
+        ('Qualité du Service Client', 'Qualité du Service Client'),
+        ('Collaboration en Équipe', 'Collaboration en Équipe'),
+        ('Sécurité au Travail', 'Sécurité au Travail'),
+        ('Compétences Techniques', 'Compétences Techniques'),
+    )
+
+    domaine = models.CharField(choices=DOMAINE, max_length=100, verbose_name="Domaine")
+    objectif = models.TextField(verbose_name="Objectif")
+
+    date_creation = models.DateField(auto_now_add=True)
+    create_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,)
 
 
 class Feedback(models.Model):

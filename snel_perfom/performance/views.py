@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Goal, PerformanceReview
-from .forms import GoalCreateForm, GoalUpdateStatusForm, PerformanceReviewForm
+
+from skill_training.models import TrainingCourse, EmployeeTraining
+from .models import Goal, PerformanceReview, ElementEvaluation
+from .forms import GoalCreateForm, GoalUpdateStatusForm, PerformanceReviewForm, ElementEvaluationForm
 from django.http import HttpResponseRedirect
 from django.views import View
 
@@ -78,6 +80,20 @@ class GoalUpdateStatusView(LoginRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', reverse_lazy('goals:list')))
 
 
+class ElementEvaluationCreate(LoginRequiredMixin, CreateView):
+    model = ElementEvaluation
+    form_class = ElementEvaluationForm
+    template_name = 'element_evaluation_form.html'
+    success_url = reverse_lazy('dashboard:home')
+
+
+class ListeElementEvaluation(LoginRequiredMixin, ListView):
+    model = ElementEvaluation
+    context_object_name = 'elements'
+    template_name = 'element_evaluation.html'
+
+
+
 class PerformanceReviewListView(LoginRequiredMixin, ListView):
     """
     Vue pour lister les revues de performance.
@@ -129,3 +145,41 @@ class PerformanceReviewUpdateView(LoginRequiredMixin, UpdateView):
         # S'assure que seul l'évaluateur peut modifier sa propre revue
         queryset = super().get_queryset()
         return queryset.filter(reviewer=self.request.user)
+
+
+class PerformanceReviewDetailView(LoginRequiredMixin, DetailView):
+    """
+    Vue pour afficher les détails d'une revue de performance.
+    """
+    model = PerformanceReview
+    template_name = 'review_detail.html'
+    context_object_name = 'review'
+
+    def test_func(self):
+        # Permet à l'employé évalué ou à l'évaluateur de voir la revue.
+        review = self.get_object()
+        return self.request.user == review.employee or self.request.user == review.reviewer
+
+
+class EnrollInTrainingView(LoginRequiredMixin, View):
+    """
+    Vue pour inscrire un employé à une formation recommandée.
+    """
+
+    def post(self, request, review_pk, training_pk):
+        review = get_object_or_404(PerformanceReview, pk=review_pk)
+        training = get_object_or_404(TrainingCourse, pk=training_pk)
+
+        # Vérifier que l'utilisateur est bien l'employé concerné par la revue
+        if request.user != review.employee:
+            return redirect(reverse_lazy('reviews:detail', kwargs={'pk': review_pk}))  # ou une page d'erreur
+
+        # Créer une nouvelle inscription si elle n'existe pas déjà
+        enrollment, created = EmployeeTraining.objects.get_or_create(
+            employee=request.user,
+            course=training,
+            defaults={'status': 'Inscrit'}
+        )
+
+        # Rediriger vers la page de revue de performance
+        return redirect(reverse_lazy('reviews:detail', kwargs={'pk': review_pk}))

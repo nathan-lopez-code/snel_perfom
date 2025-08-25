@@ -24,7 +24,7 @@
                 <thead>
                     <tr>
                         <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;">Employé Évalué</th>
-                        <th class="sort align-middle" scope="col" style="min-width:100px;">Score Global</th>
+                        <th class="sort align-middle" scope="col" style="min-width:100px;">Voir detail</th>
                         <th class="sort align-middle" scope="col" style="min-width:150px;">Date</th>
                         <th class="sort align-middle" scope="col" style="min-width:250px;">Commentaires</th>
                         <th class="sort text-end pe-0 align-middle" scope="col" style="min-width:100px;">Actions</th>
@@ -33,19 +33,9 @@
                 <tbody class="list">
                     {% for review in reviews %}
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="align-middle white-space-nowrap">{{ review.employee.get_full_name }}</td>
+                        <td class="align-middle white-space-nowrap badge">{{ review.employee.get_full_name }}</td>
                         <td class="align-middle white-space-nowrap">
-                            {% if review.overall_score == 5 %}
-                            <span class="badge badge-phoenix badge-phoenix-success fs-10">{{ review.get_overall_score_display }}</span>
-                            {% elif review.overall_score == 4 %}
-                            <span class="badge badge-phoenix badge-phoenix-info fs-10">{{ review.get_overall_score_display }}</span>
-                            {% elif review.overall_score == 3 %}
-                            <span class="badge badge-phoenix badge-phoenix-primary fs-10">{{ review.get_overall_score_display }}</span>
-                            {% elif review.overall_score == 2 %}
-                            <span class="badge badge-phoenix badge-phoenix-warning fs-10">{{ review.get_overall_score_display }}</span>
-                            {% else %}
-                            <span class="badge badge-phoenix badge-phoenix-danger fs-10">{{ review.get_overall_score_display }}</span>
-                            {% endif %}
+                            <a href="{% url 'goals:perform-detail' review.pk %}" class="btn btn-outline-info">Voir detail</a>
                         </td>
                         <td class="align-middle white-space-nowrap">{{ review.review_date|date:"d M Y" }}</td>
                         <td class="align-middle">{{ review.comments|truncatechars:100 }}</td>

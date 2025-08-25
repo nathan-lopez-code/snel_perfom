@@ -64,7 +64,7 @@ employees_data = [
         "department": "Ressources Humaines & Administration", "position": "Ingénieur / Spécialiste",
         "hire_date": "2011-04-20", "is_hr": True, "is_manager": False
     },
-    # Managers - is_manager=True, is_hr=False (5 managers)
+    # Managers  (5 managers)
     {
         "first_name": "Jean-Luc", "last_name": "Kabongo", "email": "jeanluc.kabongo@snel.cd",
         "department": "Production & Transport", "position": "Directeur de Département",

@@ -115,7 +115,12 @@ def login_(request):
             password = form.cleaned_data['password']
             user = authenticate(request, email=email, password=password)
             if user:
+
+                if user.bloquer:
+                    return redirect('dashboard:bloquer')
+
                 login(request, user)
+
                 if user.is_manager or user.is_hr: # si l'employé est un manager
                     return redirect('dashboard:home') # interface pour manager et HR
 
@@ -148,6 +153,9 @@ def logout_(request):
     except:
         return HttpResponse('Erreur de deconnexion')
 
+
+def bloquer(request):
+    return render(request, 'bloquer.html')
 
 
 def taux_de_recommandation_accepter(department=None):

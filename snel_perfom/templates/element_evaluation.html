@@ -1,0 +1,55 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %} Évaluations de Performance {% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="card-header">
+        <h3 class="mb-0">Liste d'element d'evaluation</h3>
+    </div>
+    <div class="goals-container"> <div class="filter-section justify-content-end">
+            <div class="col-auto ms-auto">
+                {% if request.user.is_hr %}
+                <a href="{% url 'goals:element-create' %}" class="btn btn-phoenix-success">
+                    <i class="fas fa-plus me-1"></i> Poster un autre element
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if elements %}
+        <div class="table-responsive mx-n1 px-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle" scope="col" style="min-width:150px;">Domaine</th>
+                        <th class="sort align-middle" scope="col" style="min-width:100px;">Objectif</th>
+                        {% if request.user.is_hr %}
+                        {% endif %}
+
+                    </tr>
+                </thead>
+                <tbody class="list">
+                    {% for el in elements %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="align-middle white-space-nowrap">{{ el.domaine }}</td>
+                        <td class="align-middle">{{ el.objectif }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-file-signature fa-5x"></i>
+            <h4>Aucune element d'evaluation trouvé.</h4>
+            <p>Commencez par créer des elements d'evaluation  pour vos employés.</p>
+            {% if request.user.is_hr %}
+            <a href="{% url 'goals:element-create' %}" class="btn btn-phoenix-success mt-3">Créer un element d'evaluation</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

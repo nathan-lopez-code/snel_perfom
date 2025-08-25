@@ -87,7 +87,7 @@
 
 {% block navigation1 %}
     {% if not request.user.is_simple_employee %}
-             <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
+      <nav class="navbar navbar-vertical navbar-expand-lg" style="display:none;">
         <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
           <!-- scrollbar removed-->
           <div class="navbar-vertical-content">
@@ -106,18 +106,46 @@
                           <div class="d-flex align-items-center"><span class="nav-link-text">Accueil</span></div>
                         </a><!-- more inner pages-->
                       </li>
-                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'Skill_Training:ai_recommandations_list' %}">
-                          <div class="d-flex align-items-center"><span class="nav-link-text">Recommendations IA</span></div>
+
+                      <li class="nav-item"><a class="nav-link {% if active_link == 2 %}active{% endif %}" href="{% url 'course:trainingcourse-list' %}">
+                          <div class="d-flex align-items-center"><span class="nav-link-text">Liste de formations </span></div>
                         </a><!-- more inner pages-->
                       </li>
                       <li class="nav-item"><a class="nav-link {% if active_link == 3 %}active{% endif %}" href="{% url 'Skill_Training:formations_list' %}">
-                          <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
-                        </a><!-- more inner pages-->
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Formation Agent</span></div>
+                            </a><!-- more inner pages-->
                       </li>
-                      <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
-                          <div class="d-flex align-items-center"><span class="nav-link-text">Attente approbation</span></div>
-                        </a><!-- more inner pages-->
-                      </li>
+
+                      {% if request.user.is_hr %}
+                          <li class="nav-item"><a class="nav-link {% if active_link == 6 %}active{% endif %}" href="{% url 'course:trainingcourse-add' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text"> Ajouter un cours </span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                      {% endif %}
+
+                      {%  if request.user.is_manager %}
+                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'Skill_Training:manager_approval_list' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text"> Evaluation formation </span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:create' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Fixer un objectif</span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:list' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Liste d'objectif</span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:perform-list' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Liste d'evaluation</span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                          <li class="nav-item"><a class="nav-link {% if active_link == 4 %}active{% endif %}" href="{% url 'goals:perform-create' %}">
+                              <div class="d-flex align-items-center"><span class="nav-link-text">Evaluer un agent</span></div>
+                            </a><!-- more inner pages-->
+                          </li>
+                      {% endif  %}
+
                     </ul>
                   </div>
                 </div>
